@@ -1,11 +1,11 @@
 package processor;
 
-import java.nio.ByteBuffer;
+import sequencer.commands.Command;
 
 public class TestCommandProcessor implements CommandProcessor {
 
     @Override
-    public boolean process(ByteBuffer command) {
+    public boolean process(Command command) {
         return false;
     }
 

@@ -12,10 +12,16 @@ buildscript {
 plugins {
     // Apply the java-library plugin to add support for Java Library
     id 'java-library'
+    id 'org.unbroken-dome.test-sets' version '3.0.0'
 }
 
 repositories {
     jcenter()
+}
+
+testSets {
+    // change the name of the src dir
+    integrationTest { dirName = 'integration-test' }
 }
 
 dependencies {
@@ -28,6 +34,9 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5+'
+
+    integrationTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
+    integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5+'
 }
 
 test {
@@ -38,4 +47,14 @@ jar {
     manifest {
         attributes('Implementation-Title': project.name, 'Implementation-Version': project.version)
     }
+}
+
+// make sure check depends on integration tests running and passing
+check.dependsOn integrationTest
+// make the integration tests run
+integrationTest.mustRunAfter test
+
+//ensures integration test always run even when not changed
+project.integrationTest {
+    outputs.upToDateWhen { false }
 }

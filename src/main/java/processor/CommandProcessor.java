@@ -1,10 +1,10 @@
 package processor;
 
-import java.nio.ByteBuffer;
+import sequencer.commands.Command;
 
 public interface CommandProcessor {
 
-    boolean process(ByteBuffer command);
+    boolean process(Command command);
 
     String getName();
 }
