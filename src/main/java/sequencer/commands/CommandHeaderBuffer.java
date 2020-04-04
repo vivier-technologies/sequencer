@@ -1,4 +1,4 @@
-package sequencer.commands.buffer;
+package sequencer.commands;
 
 public class CommandHeaderBuffer {
 }

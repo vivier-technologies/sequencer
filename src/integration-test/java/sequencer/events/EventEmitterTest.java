@@ -11,7 +11,9 @@ public class EventEmitterTest {
 
     @Test
     public void testSendingEvent() throws IOException {
-        EventEmitter ee = new EventEmitterImpl("127.0.0.1", "230.0.0.0", 4000);
-        assertTrue(ee.send(ByteBuffer.wrap("TEST".getBytes())));
+        EventEmitter ee = new MulticastEventEmitter("127.0.0.1", "230.0.0.0", 4000);
+        ByteBufferEvent e = new ByteBufferEvent();
+        e.setData(ByteBuffer.wrap("TEST".getBytes()));
+        assertTrue(ee.send(e));
     }
 }

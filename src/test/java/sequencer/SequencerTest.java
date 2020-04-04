@@ -19,7 +19,7 @@ public class SequencerTest {
                 bind(CommandProcessor.class).to(TestCommandProcessor.class);
             }
         });
-        Sequencer s = new Sequencer(injector.getInstance(CommandProcessor.class));
+        Sequencer s = new Sequencer(injector.getInstance(CommandProcessor.class), null, null);
         assertEquals("Test", s.getProcessor().getName());
     }
 }

@@ -5,6 +5,6 @@ import java.nio.ByteBuffer;
 
 public interface EventEmitter {
 
-    boolean send(ByteBuffer event) throws IOException;
+    boolean send(Event event) throws IOException;
 
 }
