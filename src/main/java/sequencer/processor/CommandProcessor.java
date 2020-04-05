@@ -1,10 +1,11 @@
 package sequencer.processor;
 
 import sequencer.commands.Command;
+import sequencer.events.Event;
 
 public interface CommandProcessor {
 
-    boolean process(Command command);
+    Event process(Command command);
 
     String getName();
 }

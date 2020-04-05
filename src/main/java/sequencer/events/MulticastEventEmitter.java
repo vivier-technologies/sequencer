@@ -1,8 +1,9 @@
 package sequencer.events;
 
-import com.google.inject.Inject;
+
 import org.apache.commons.configuration2.Configuration;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.*;
 import java.nio.channels.DatagramChannel;

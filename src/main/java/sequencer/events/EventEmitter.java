@@ -1,7 +1,6 @@
 package sequencer.events;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 public interface EventEmitter {
 

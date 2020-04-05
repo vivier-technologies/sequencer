@@ -4,6 +4,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.jupiter.api.Test;
+import sequencer.commands.CommandReceiver;
+import sequencer.commands.UnicastCommandReceiver;
 import sequencer.processor.CommandProcessor;
 import sequencer.processor.TestCommandProcessor;
 import sequencer.events.EventEmitter;
@@ -23,6 +25,7 @@ public class SequencerTest {
                 bind(CommandProcessor.class).to(TestCommandProcessor.class);
                 bind(EventStore.class).to(TestEventStore.class);
                 bind(EventEmitter.class).to(TestEventEmitter.class);
+                bind(CommandReceiver.class).to(UnicastCommandReceiver.class);
             }
         });
         Sequencer s = injector.getInstance(Sequencer.class);

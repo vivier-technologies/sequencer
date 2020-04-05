@@ -1,10 +1,17 @@
 package sequencer;
 
-import com.google.inject.*;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Provides;
 import org.apache.commons.cli.*;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import sequencer.commands.Command;
+import sequencer.commands.CommandReceiver;
+import sequencer.commands.UnicastCommandReceiver;
+import sequencer.events.Event;
 import sequencer.processor.CommandProcessor;
 import sequencer.events.EventEmitter;
 import sequencer.events.MulticastEventEmitter;
@@ -13,29 +20,45 @@ import sequencer.eventstore.MemoryMappedEventStore;
 import sequencer.utils.ConsoleLogger;
 import sequencer.utils.Logger;
 
+import javax.inject.Inject;
 import java.io.File;
 
 public class Sequencer {
 
     private static final byte[] _componentName = "SEQUENCER".getBytes();
 
+    private final CommandReceiver _receiver;
     private final CommandProcessor _processor;
     private final EventStore _eventStore;
     private final EventEmitter _emitter;
 
     @Inject
-    public Sequencer(final CommandProcessor processor, final EventStore eventStore, final EventEmitter emitter) {
+    public Sequencer(CommandProcessor processor, EventStore eventStore, EventEmitter emitter, CommandReceiver receiver) {
         _processor = processor;
         _eventStore = eventStore;
         _emitter = emitter;
+        _receiver = receiver;
     }
 
     public final CommandProcessor getProcessor() {
         return _processor;
     }
 
+    //TODO implement selector
+    //TODO implement scheduler on top of mux
+    //TODO event storage and structures
+    //TODO command receiving
+    //TODO heartbeating
+    //TODO event replay
     public void start() {
 
+    }
+
+    public void process() {
+        // probably called back from multiplexer in reality
+        Command c = _receiver.receive();
+        Event e = _processor.process(c);
+        _eventStore.store(e);
     }
 
     public static void main(String[] args) {
@@ -82,12 +105,14 @@ public class Sequencer {
                                 Class.forName(config.getString("sequencer.commandprocessor",
                                         "sequencer.processor.NoOpCommandProcessor"));
                         Injector injector = Guice.createInjector(new AbstractModule() {
+
                             @Override
                             protected void configure() {
                                 // bit weak but not sure there is another way here
                                 bind(CommandProcessor.class).to((Class<? extends CommandProcessor>) commandProcessorClass);
                                 bind(EventStore.class).to(MemoryMappedEventStore.class);
                                 bind(EventEmitter.class).to(MulticastEventEmitter.class);
+                                bind(CommandReceiver.class).to(UnicastCommandReceiver.class);
                             }
 
                             @Provides

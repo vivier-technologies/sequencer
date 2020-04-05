@@ -1,7 +1,9 @@
 package sequencer.processor;
 
-import com.google.inject.Inject;
 import sequencer.commands.Command;
+import sequencer.events.Event;
+
+import javax.inject.Inject;
 
 public class TestCommandProcessor implements CommandProcessor {
 
@@ -11,8 +13,8 @@ public class TestCommandProcessor implements CommandProcessor {
     }
 
     @Override
-    public boolean process(Command command) {
-        return false;
+    public Event process(Command command) {
+        return null;
     }
 
     @Override

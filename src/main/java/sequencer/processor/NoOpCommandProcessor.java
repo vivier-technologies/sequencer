@@ -1,11 +1,13 @@
 package sequencer.processor;
 
 import sequencer.commands.Command;
+import sequencer.events.Event;
 
 public class NoOpCommandProcessor implements CommandProcessor {
+
     @Override
-    public boolean process(Command command) {
-        return false;
+    public Event process(Command command) {
+        return null;
     }
 
     @Override
