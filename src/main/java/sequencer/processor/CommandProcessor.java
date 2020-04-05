@@ -1,4 +1,4 @@
-package processor;
+package sequencer.processor;
 
 import sequencer.commands.Command;
 

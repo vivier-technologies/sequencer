@@ -6,6 +6,6 @@ public interface EventStore {
 
     boolean store(Event event);
 
-    void retrieve();
+    Events retrieve(long start, long end);
 
 }

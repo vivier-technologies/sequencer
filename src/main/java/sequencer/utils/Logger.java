@@ -1,12 +1,30 @@
 package sequencer.utils;
 
 /**
- * Slightly silly interface but intention to write an object efficient logger behind this eventually
+ * Intention to write an object efficient logger behind this eventually rather than inefficient java one
  * that can push out to variety of locations - file, indexing service etc
  */
 public interface Logger {
 
-    void log(byte[] component, String s);
+    byte[] WARN = "WARN".getBytes();
+    byte[] ERROR = "ERROR".getBytes();
+    byte[] INFO = "INFO".getBytes();
 
-    void log(byte[] component, String s1, String s2);
+    void info(byte[] component, String s);
+
+    void info(byte[] component, String s1, String s2);
+
+    void info(byte[] component, String s1, String s2, String s3);
+
+    void warn(byte[] component, String s);
+
+    void warn(byte[] component, String s1, String s2);
+
+    void error(byte[] component, String s);
+
+    void error(byte[] component, String s1, String s2);
+
+    void log(byte[] level, byte[] component, String s);
+
+    void log(byte[] level, byte[] component, String s1, String s2);
 }

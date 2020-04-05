@@ -1,17 +1,30 @@
 package sequencer.events;
 
+import com.google.inject.Inject;
+import org.apache.commons.configuration2.Configuration;
+
 import java.io.IOException;
 import java.net.*;
 import java.nio.channels.DatagramChannel;
 
 public class MulticastEventEmitter implements EventEmitter {
-        private DatagramChannel _channel;
-        private SocketAddress _multicastAddress;
+    private DatagramChannel _channel;
+    private SocketAddress _multicastAddress;
 
-    public MulticastEventEmitter(String ip, String multicastAddress, int multicastPort) throws IOException {
+    @Inject
+    public MulticastEventEmitter(Configuration configuration) throws IOException {
+        //TODO implement properly
+        this(configuration.getString("sequencer.eventemitter.ip"),
+                configuration.getString("sequencer.eventemitter.multicast.ip"),
+                configuration.getInt("sequencer.eventemitter.multicast.port"),
+                        configuration.getBoolean("sequencer.loopback"));
+    }
+
+    public MulticastEventEmitter(String ip, String multicastAddress, int multicastPort, boolean multicastLoopback) throws IOException {
         _channel = DatagramChannel.open(StandardProtocolFamily.INET);
-        _channel.setOption(StandardSocketOptions.IP_MULTICAST_IF,
-                NetworkInterface.getByInetAddress(InetAddress.getByName(ip)));
+        NetworkInterface nif = NetworkInterface.getByInetAddress(InetAddress.getByName(ip));
+        _channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nif);
+        _channel.setOption(StandardSocketOptions.IP_MULTICAST_LOOP, multicastLoopback);
         _channel.bind(null); // select any local address
         _multicastAddress = new InetSocketAddress(multicastAddress, multicastPort);
     }

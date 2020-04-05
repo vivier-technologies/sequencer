@@ -4,8 +4,12 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.jupiter.api.Test;
-import processor.CommandProcessor;
-import processor.TestCommandProcessor;
+import sequencer.processor.CommandProcessor;
+import sequencer.processor.TestCommandProcessor;
+import sequencer.events.EventEmitter;
+import sequencer.events.TestEventEmitter;
+import sequencer.eventstore.EventStore;
+import sequencer.eventstore.TestEventStore;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -17,9 +21,11 @@ public class SequencerTest {
             @Override
             protected void configure() {
                 bind(CommandProcessor.class).to(TestCommandProcessor.class);
+                bind(EventStore.class).to(TestEventStore.class);
+                bind(EventEmitter.class).to(TestEventEmitter.class);
             }
         });
-        Sequencer s = new Sequencer(injector.getInstance(CommandProcessor.class), null, null);
+        Sequencer s = injector.getInstance(Sequencer.class);
         assertEquals("Test", s.getProcessor().getName());
     }
 }

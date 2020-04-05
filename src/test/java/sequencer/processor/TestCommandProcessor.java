@@ -1,4 +1,4 @@
-package processor;
+package sequencer.processor;
 
 import com.google.inject.Inject;
 import sequencer.commands.Command;

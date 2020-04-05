@@ -10,7 +10,7 @@ plugins {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 testSets {
@@ -25,6 +25,7 @@ dependencies {
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.inject:guice:4.2.3'
     implementation 'org.apache.commons:commons-configuration2:2.7'
+    implementation 'commons-beanutils:commons-beanutils:1.9.4'
     implementation 'commons-cli:commons-cli:20040117.000000'
 
     // Use JUnit test framework
