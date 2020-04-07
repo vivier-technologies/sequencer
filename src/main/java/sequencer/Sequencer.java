@@ -19,6 +19,8 @@ import sequencer.eventstore.EventStore;
 import sequencer.eventstore.MemoryMappedEventStore;
 import sequencer.utils.ConsoleLogger;
 import sequencer.utils.Logger;
+import sequencer.utils.Multiplexer;
+import sequencer.utils.Mux;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -110,9 +112,13 @@ public class Sequencer {
                             protected void configure() {
                                 // bit weak but not sure there is another way here
                                 bind(CommandProcessor.class).to((Class<? extends CommandProcessor>) commandProcessorClass);
+
                                 bind(EventStore.class).to(MemoryMappedEventStore.class);
                                 bind(EventEmitter.class).to(MulticastEventEmitter.class);
                                 bind(CommandReceiver.class).to(UnicastCommandReceiver.class);
+
+                                bind(Logger.class).to(ConsoleLogger.class).asEagerSingleton();
+                                bind(Multiplexer.class).to(Mux.class).asEagerSingleton();
                             }
 
                             @Provides

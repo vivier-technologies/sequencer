@@ -2,7 +2,6 @@ package sequencer.utils;
 
 public interface Scheduler {
 
-    boolean oneTime();
+    boolean schedule(SchedulerListener listener);
 
-    boolean repeated();
 }

@@ -14,7 +14,6 @@ public class MulticastEventEmitter implements EventEmitter {
 
     @Inject
     public MulticastEventEmitter(Configuration configuration) throws IOException {
-        //TODO implement properly
         this(configuration.getString("sequencer.eventemitter.ip"),
                 configuration.getString("sequencer.eventemitter.multicast.ip"),
                 configuration.getInt("sequencer.eventemitter.multicast.port"),
@@ -23,6 +22,7 @@ public class MulticastEventEmitter implements EventEmitter {
 
     public MulticastEventEmitter(String ip, String multicastAddress, int multicastPort, boolean multicastLoopback) throws IOException {
         _channel = DatagramChannel.open(StandardProtocolFamily.INET);
+        _channel.configureBlocking(false);
         NetworkInterface nif = NetworkInterface.getByInetAddress(InetAddress.getByName(ip));
         _channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nif);
         _channel.setOption(StandardSocketOptions.IP_MULTICAST_LOOP, multicastLoopback);

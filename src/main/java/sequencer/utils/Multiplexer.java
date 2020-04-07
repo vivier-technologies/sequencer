@@ -1,8 +1,11 @@
 package sequencer.utils;
 
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.spi.AbstractSelectableChannel;
+
 public interface Multiplexer {
 
-    boolean add();
+    void register(AbstractSelectableChannel channel, int ops, MultiplexerListener handler) throws ClosedChannelException;
 
-    boolean remove();
+    void remove(AbstractSelectableChannel channel);
 }
