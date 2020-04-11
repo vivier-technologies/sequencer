@@ -20,7 +20,7 @@ import sequencer.eventstore.MemoryMappedEventStore;
 import sequencer.utils.ConsoleLogger;
 import sequencer.utils.Logger;
 import sequencer.utils.Multiplexer;
-import sequencer.utils.Mux;
+import sequencer.utils.OutOufBoxMultiplexer;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -118,7 +118,7 @@ public class Sequencer {
                                 bind(CommandReceiver.class).to(UnicastCommandReceiver.class);
 
                                 bind(Logger.class).to(ConsoleLogger.class).asEagerSingleton();
-                                bind(Multiplexer.class).to(Mux.class).asEagerSingleton();
+                                bind(Multiplexer.class).to(OutOufBoxMultiplexer.class).asEagerSingleton();
                             }
 
                             @Provides

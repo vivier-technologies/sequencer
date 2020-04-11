@@ -12,7 +12,10 @@ import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 import java.util.Set;
 
-public class Mux implements Multiplexer, Scheduler {
+/**
+ * Uses standard VM selector implementation which generates quite a bit of garbage..
+ */
+public class OutOufBoxMultiplexer implements Multiplexer, Scheduler {
     private Selector _selector;
     private Logger _logger;
     private boolean _run = true;
@@ -23,7 +26,7 @@ public class Mux implements Multiplexer, Scheduler {
     }
 
     @Inject
-    public Mux(Configuration config, Logger logger) {
+    public OutOufBoxMultiplexer(Configuration config, Logger logger) {
 
     }
 
