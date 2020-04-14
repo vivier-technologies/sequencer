@@ -15,7 +15,7 @@ import java.util.Set;
 /**
  * Uses standard VM selector implementation which generates quite a bit of garbage..
  */
-public class OutOufBoxMultiplexer implements Multiplexer, Scheduler {
+public class StandardJVMMultiplexer implements Multiplexer, Scheduler {
     private Selector _selector;
     private Logger _logger;
     private boolean _run = true;
@@ -26,7 +26,7 @@ public class OutOufBoxMultiplexer implements Multiplexer, Scheduler {
     }
 
     @Inject
-    public OutOufBoxMultiplexer(Configuration config, Logger logger) {
+    public StandardJVMMultiplexer(Configuration config, Logger logger) {
 
     }
 
