@@ -10,4 +10,6 @@ public interface MultiplexerListener {
 
     void onWrite();
 
+    void onShutdown();
+
 }

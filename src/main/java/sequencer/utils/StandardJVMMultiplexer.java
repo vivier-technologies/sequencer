@@ -10,7 +10,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
-import java.util.Set;
 
 /**
  * Uses standard VM selector implementation which generates quite a bit of garbage..
@@ -20,34 +19,53 @@ public class StandardJVMMultiplexer implements Multiplexer, Scheduler {
     private Logger _logger;
     private boolean _run = true;
 
+
+    @Inject
+    public StandardJVMMultiplexer(Configuration config, Logger logger) {
+        _logger = logger;
+    }
+
     @Override
     public boolean schedule(SchedulerListener listener) {
         return false;
     }
 
-    @Inject
-    public StandardJVMMultiplexer(Configuration config, Logger logger) {
-
+    public void open() throws IOException {
+        _selector = SelectorProvider.provider().openSelector();
     }
 
     public void run() throws IOException {
-        _selector = SelectorProvider.provider().openSelector();
 
         while(_run) {
             // TODO work out the timeout logic here
             long now = System.currentTimeMillis();
             if(_selector.selectNow() > 0) {
-                // this is a
-                Set<SelectionKey> keys = _selector.selectedKeys();
-                Iterator iterator = keys.iterator();
-                while(iterator.hasNext()) {
-                    // whats ready
+                Iterator<SelectionKey> iterator = _selector.selectedKeys().iterator();
+                iterator.forEachRemaining(key -> {
+                    if(key.isAcceptable()) {
+                        ((MultiplexerListener)key.attachment()).onAccept();
+
+                    } else if (key.isConnectable()) {
+                        ((MultiplexerListener)key.attachment()).onConnect();
+
+                    } else if (key.isReadable()) {
+                        ((MultiplexerListener)key.attachment()).onRead();
+
+                    } else if (key.isWritable()) {
+                        ((MultiplexerListener)key.attachment()).onWrite();
+                    }
 
                     iterator.remove();
-                }
+                });
+
             }
         }
         _selector.close();
+    }
+
+    @Override
+    public boolean isRunning() {
+        return _run;
     }
 
     public void shutdown() {
@@ -62,7 +80,6 @@ public class StandardJVMMultiplexer implements Multiplexer, Scheduler {
 
     @Override
     public void remove(AbstractSelectableChannel channel) {
-        // TODO use a registration id to make this more efficient
         SelectionKey key = channel.keyFor(_selector);
         key.cancel();
     }
