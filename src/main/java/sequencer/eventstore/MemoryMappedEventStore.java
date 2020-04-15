@@ -2,7 +2,14 @@ package sequencer.eventstore;
 
 import sequencer.events.Event;
 
+import java.io.IOException;
+
 public class MemoryMappedEventStore implements EventStore {
+
+    @Override
+    public void open() throws IOException {
+
+    }
 
     @Override
     public boolean store(Event event) {

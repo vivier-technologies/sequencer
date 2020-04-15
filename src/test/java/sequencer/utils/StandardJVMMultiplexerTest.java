@@ -16,23 +16,24 @@ class StandardJVMMultiplexerTest {
     public void testRegisterAndRemove() throws IOException {
         Multiplexer mux = new StandardJVMMultiplexer(null, new ConsoleLogger());
         mux.open();
-        // TODO Mock
+
+        // TODO think about mocking but might be challenging..
         AbstractSelectableChannel channel = DatagramChannel.open();
         channel.configureBlocking(false);
         mux.register(channel, SelectionKey.OP_WRITE, new MultiplexerListener() {
             @Override
             public void onConnect() {
-
+                fail();
             }
 
             @Override
             public void onAccept() {
-
+                fail();
             }
 
             @Override
             public void onRead() {
-
+                fail();
             }
 
             @Override

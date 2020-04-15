@@ -10,7 +10,7 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import sequencer.commands.Command;
 import sequencer.commands.CommandReceiver;
-import sequencer.commands.UnicastCommandReceiver;
+import sequencer.commands.MulticastCommandReceiver;
 import sequencer.events.Event;
 import sequencer.processor.CommandProcessor;
 import sequencer.events.EventEmitter;
@@ -24,6 +24,7 @@ import sequencer.utils.StandardJVMMultiplexer;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
 
 public class Sequencer {
 
@@ -33,9 +34,15 @@ public class Sequencer {
     private final CommandProcessor _processor;
     private final EventStore _eventStore;
     private final EventEmitter _emitter;
+    private final Multiplexer _mux;
+    private final Logger _logger;
 
     @Inject
-    public Sequencer(CommandProcessor processor, EventStore eventStore, EventEmitter emitter, CommandReceiver receiver) {
+    public Sequencer(Logger logger, Multiplexer mux, CommandProcessor processor,
+                     EventStore eventStore, EventEmitter emitter, CommandReceiver receiver) {
+
+        _logger = logger;
+        _mux = mux;
         _processor = processor;
         _eventStore = eventStore;
         _emitter = emitter;
@@ -46,21 +53,21 @@ public class Sequencer {
         return _processor;
     }
 
-    //TODO implement selector
     //TODO implement scheduler on top of mux
     //TODO event storage and structures
-    //TODO command receiving
     //TODO heartbeating
-    //TODO event replay
+    //TODO event replay!!
+    //TODO handle command retries or assume client will back off?
     public void start() {
-
-    }
-
-    public void process() {
-        // probably called back from multiplexer in reality
-        Command c = _receiver.receive();
-        Event e = _processor.process(c);
-        _eventStore.store(e);
+        try {
+            _emitter.open();
+            _receiver.open();
+            _eventStore.open();
+            _mux.open();
+            _mux.run();
+        } catch (IOException e) {
+            _logger.error(_componentName, "Unable to start as cannot open dependent modules");
+        }
     }
 
     public static void main(String[] args) {
@@ -108,14 +115,15 @@ public class Sequencer {
                                         "sequencer.processor.NoOpCommandProcessor"));
                         Injector injector = Guice.createInjector(new AbstractModule() {
 
+                            // TODO make more advanced with multiple modules etc but for now just get it going
                             @Override
                             protected void configure() {
                                 // bit weak but not sure there is another way here
-                                bind(CommandProcessor.class).to((Class<? extends CommandProcessor>) commandProcessorClass);
+                                bind(CommandProcessor.class).to((Class<? extends CommandProcessor>) commandProcessorClass).asEagerSingleton();
 
                                 bind(EventStore.class).to(MemoryMappedEventStore.class);
                                 bind(EventEmitter.class).to(MulticastEventEmitter.class);
-                                bind(CommandReceiver.class).to(UnicastCommandReceiver.class);
+                                bind(CommandReceiver.class).to(MulticastCommandReceiver.class);
 
                                 bind(Logger.class).to(ConsoleLogger.class).asEagerSingleton();
                                 bind(Multiplexer.class).to(StandardJVMMultiplexer.class).asEagerSingleton();

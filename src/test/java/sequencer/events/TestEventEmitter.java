@@ -8,4 +8,9 @@ public class TestEventEmitter implements EventEmitter {
     public boolean send(Event event) throws IOException {
         return false;
     }
+
+    @Override
+    public void open() throws IOException {
+
+    }
 }

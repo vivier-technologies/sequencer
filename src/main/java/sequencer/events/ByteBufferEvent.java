@@ -8,7 +8,7 @@ public class ByteBufferEvent implements Event {
 
     @Override
     public ByteBuffer getData() {
-        return null;
+        return _buffer;
     }
 
     public void setData(ByteBuffer data) {

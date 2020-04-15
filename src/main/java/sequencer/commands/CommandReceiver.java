@@ -1,6 +1,8 @@
 package sequencer.commands;
 
+import java.io.IOException;
+
 public interface CommandReceiver {
 
-    Command receive();
+    void open() throws IOException;
 }
