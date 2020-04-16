@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 public class ByteBufferCommand implements Command {
 
     private ByteBuffer _buffer;
-    private ByteBufferCommandHeader _header;
+    private ByteBufferCommandHeader _header = new ByteBufferCommandHeader();
 
     @Override
     public CommandHeader getHeader() {
@@ -14,7 +14,7 @@ public class ByteBufferCommand implements Command {
 
     @Override
     public ByteBuffer getData() {
-        return null;
+        return _buffer;
     }
 
     public ByteBufferCommand setData(ByteBuffer buffer) {

@@ -2,6 +2,7 @@ package sequencer.commands;
 
 import org.apache.commons.configuration2.Configuration;
 import sequencer.processor.CommandProcessor;
+import sequencer.utils.ByteBufferFactory;
 import sequencer.utils.Logger;
 import sequencer.utils.Multiplexer;
 import sequencer.utils.MultiplexerListener;
@@ -10,6 +11,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
@@ -59,7 +61,7 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
         _processor = processor;
 
         //TODO consider whether to allocate direct or not here..
-        _buffer = ByteBuffer.allocateDirect(receiveBufferSize);
+        _buffer = ByteBufferFactory.nativeAllocateDirect(receiveBufferSize);
 
         //TODO put into factory - if so need write interface to command as well
         _command = new ByteBufferCommand();

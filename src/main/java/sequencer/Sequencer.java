@@ -8,15 +8,13 @@ import org.apache.commons.cli.*;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import sequencer.commands.Command;
 import sequencer.commands.CommandReceiver;
 import sequencer.commands.MulticastCommandReceiver;
-import sequencer.events.Event;
-import sequencer.processor.CommandProcessor;
 import sequencer.events.EventEmitter;
 import sequencer.events.MulticastEventEmitter;
 import sequencer.eventstore.EventStore;
 import sequencer.eventstore.MemoryMappedEventStore;
+import sequencer.processor.CommandProcessor;
 import sequencer.utils.ConsoleLogger;
 import sequencer.utils.Logger;
 import sequencer.utils.Multiplexer;
@@ -91,6 +89,7 @@ public class Sequencer {
                 .withDescription("Either a url to the properties file or a config file")
                 .isRequired()
                 .create("config"));
+
         CommandLineParser parser = new BasicParser();
         CommandLine commandLine = null;
         try {
@@ -103,9 +102,9 @@ public class Sequencer {
 
             // TODO add code to download from remote URL
             if (commandLine.getOptionValue("configtype").equalsIgnoreCase("file")) {
-                Configurations configs = new Configurations();
                 try {
-                    Configuration config = configs.properties(new File(commandLine.getOptionValue("config")));
+                    Configuration config =
+                            new Configurations().properties(new File(commandLine.getOptionValue("config")));
 
                     // load different modules depending on options on command line
                     // allow different command processors on command line to be plugged in
@@ -119,19 +118,23 @@ public class Sequencer {
                             @Override
                             protected void configure() {
                                 // bit weak but not sure there is another way here
-                                bind(CommandProcessor.class).to((Class<? extends CommandProcessor>) commandProcessorClass).asEagerSingleton();
+                                bind(CommandProcessor.class).to(
+                                        (Class<? extends CommandProcessor>) commandProcessorClass).asEagerSingleton();
 
                                 bind(EventStore.class).to(MemoryMappedEventStore.class);
                                 bind(EventEmitter.class).to(MulticastEventEmitter.class);
                                 bind(CommandReceiver.class).to(MulticastCommandReceiver.class);
-
-                                bind(Logger.class).to(ConsoleLogger.class).asEagerSingleton();
                                 bind(Multiplexer.class).to(StandardJVMMultiplexer.class).asEagerSingleton();
                             }
 
                             @Provides
                             Configuration provideConfiguration() {
                                 return config;
+                            }
+
+                            @Provides
+                            Logger provideLogger() {
+                                return logger;
                             }
 
                         });
