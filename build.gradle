@@ -1,58 +1,64 @@
+//plugins {
+//    id 'java'
+//    //id 'org.unbroken-dome.test-sets' version '3.0.0'
+//}
 
-buildscript {
+subprojects {
+    apply plugin: 'java-library'
+
+    group = 'com.vivier_technologies'
     version = '0.1.0'
-}
 
-plugins {
-    // Apply the java-library plugin to add support for Java Library
-    id 'java-library'
-    id 'org.unbroken-dome.test-sets' version '3.0.0'
-}
+    repositories {
+        mavenCentral()
+    }
 
-repositories {
-    mavenCentral()
-}
+    //apply plugin: 'org.unbroken-dome.test-sets'
 
-testSets {
-    // change the name of the src dir
-    integrationTest { dirName = 'integration-test' }
-}
+    dependencies {
+        // This dependency is exported to consumers, that is to say found on their compile classpath.
+        // api 'google.'
 
-dependencies {
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    // api 'google.'
+        // This dependency is used internally, and not exposed to consumers on their own compile classpath.
+        implementation 'com.google.inject:guice:4.2.3'
+        implementation 'org.apache.commons:commons-configuration2:2.7'
+        implementation 'commons-beanutils:commons-beanutils:1.9.4'
+        implementation 'commons-cli:commons-cli:20040117.000000'
 
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'com.google.inject:guice:4.2.3'
-    implementation 'org.apache.commons:commons-configuration2:2.7'
-    implementation 'commons-beanutils:commons-beanutils:1.9.4'
-    implementation 'commons-cli:commons-cli:20040117.000000'
+        // Use JUnit test framework
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
+        testImplementation 'org.mockito:mockito-core:3.3.3'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5+'
 
-    // Use JUnit test framework
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
-    testImplementation 'org.mockito:mockito-core:3.3.3'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5+'
-
-    integrationTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
-    integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5+'
-}
-
-test {
-    useJUnitPlatform()
-}
-
-jar {
-    manifest {
-        attributes('Implementation-Title': project.name, 'Implementation-Version': project.version)
+        //integrationTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
+        //integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5+'
     }
 }
 
+project(':sequencer') {
+    dependencies {
+        implementation project(':utils'), project(':messages')
+    }
+}
+
+project(':messages') {
+    dependencies {
+        implementation project(':utils')
+    }
+}
+
+//testSets {
+//    integrationTest
+//}
+
+
+
 // make sure check depends on integration tests running and passing
-check.dependsOn integrationTest
+//check.dependsOn integrationTest
 // make the integration tests run
-integrationTest.mustRunAfter test
+//integrationTest.mustRunAfter test
 
 //ensures integration test always run even when not changed
-project.integrationTest {
-    outputs.upToDateWhen { false }
-}
+//project.integrationTest {
+//    outputs.upToDateWhen { false }
+//}
