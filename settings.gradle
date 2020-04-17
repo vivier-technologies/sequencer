@@ -1,2 +1,8 @@
 
 rootProject.name = 'sequencer-event-sourcing'
+
+include 'utils'
+include 'sequencer'
+include 'client'
+include 'messages'
+
