@@ -58,10 +58,11 @@ public class Sequencer {
     //TODO handle command retries or assume client will back off?
     public void start() {
         try {
+            _mux.open();
             _emitter.open();
             _receiver.open();
             _eventStore.open();
-            _mux.open();
+
             _mux.run();
         } catch (IOException e) {
             _logger.error(_componentName, "Unable to start as cannot open dependent modules");
