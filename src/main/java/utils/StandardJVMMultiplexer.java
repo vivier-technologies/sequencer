@@ -1,4 +1,4 @@
-package sequencer.utils;
+package utils;
 
 import org.apache.commons.configuration2.Configuration;
 

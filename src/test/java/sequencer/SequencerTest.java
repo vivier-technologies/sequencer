@@ -14,10 +14,10 @@ import sequencer.eventstore.EventStore;
 import sequencer.eventstore.TestEventStore;
 import sequencer.processor.CommandProcessor;
 import sequencer.processor.TestCommandProcessor;
-import sequencer.utils.ConsoleLogger;
-import sequencer.utils.Logger;
-import sequencer.utils.Multiplexer;
-import sequencer.utils.StandardJVMMultiplexer;
+import utils.ConsoleLogger;
+import utils.Logger;
+import utils.Multiplexer;
+import utils.StandardJVMMultiplexer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;

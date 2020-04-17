@@ -1,7 +1,7 @@
 package sequencer.commands;
 
 import org.junit.jupiter.api.Test;
-import sequencer.utils.ByteBufferFactory;
+import utils.ByteBufferFactory;
 
 import java.nio.ByteBuffer;
 

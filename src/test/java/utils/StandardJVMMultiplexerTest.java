@@ -1,6 +1,10 @@
-package sequencer.utils;
+package utils;
 
 import org.junit.jupiter.api.Test;
+import utils.ConsoleLogger;
+import utils.Multiplexer;
+import utils.MultiplexerListener;
+import utils.StandardJVMMultiplexer;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;

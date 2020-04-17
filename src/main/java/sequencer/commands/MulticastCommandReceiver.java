@@ -2,16 +2,15 @@ package sequencer.commands;
 
 import org.apache.commons.configuration2.Configuration;
 import sequencer.processor.CommandProcessor;
-import sequencer.utils.ByteBufferFactory;
-import sequencer.utils.Logger;
-import sequencer.utils.Multiplexer;
-import sequencer.utils.MultiplexerListener;
+import utils.ByteBufferFactory;
+import utils.Logger;
+import utils.Multiplexer;
+import utils.MultiplexerListener;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 

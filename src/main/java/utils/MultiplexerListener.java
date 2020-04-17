@@ -1,4 +1,4 @@
-package sequencer.utils;
+package utils;
 
 public interface MultiplexerListener {
 

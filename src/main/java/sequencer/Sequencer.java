@@ -15,10 +15,10 @@ import sequencer.events.MulticastEventEmitter;
 import sequencer.eventstore.EventStore;
 import sequencer.eventstore.MemoryMappedEventStore;
 import sequencer.processor.CommandProcessor;
-import sequencer.utils.ConsoleLogger;
-import sequencer.utils.Logger;
-import sequencer.utils.Multiplexer;
-import sequencer.utils.StandardJVMMultiplexer;
+import utils.ConsoleLogger;
+import utils.Logger;
+import utils.Multiplexer;
+import utils.StandardJVMMultiplexer;
 
 import javax.inject.Inject;
 import java.io.File;

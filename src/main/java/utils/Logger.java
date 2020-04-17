@@ -1,4 +1,4 @@
-package sequencer.utils;
+package utils;
 
 /**
  * Intention to write an object efficient logger behind this eventually rather than inefficient java one
