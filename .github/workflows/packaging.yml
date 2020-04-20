@@ -2,7 +2,7 @@ name: Package - publish to GitHub Packages
 
 on:
   release:
-    types: [created, updated]
+    types: [created, edited]
 jobs:
   publish:
     runs-on: ubuntu-latest
