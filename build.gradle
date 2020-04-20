@@ -3,6 +3,12 @@ plugins {
     id 'maven-publish'
 }
 
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
 subprojects {
     apply plugin: 'java-library'
     apply plugin: 'org.unbroken-dome.test-sets'
@@ -13,10 +19,6 @@ subprojects {
 
     test {
         useJUnitPlatform()
-    }
-
-    repositories {
-        mavenCentral()
     }
 
     testSets {
@@ -34,12 +36,12 @@ subprojects {
         implementation 'commons-cli:commons-cli:20040117.000000'
 
         // Use JUnit test framework
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
         testImplementation 'org.mockito:mockito-core:3.3.3'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5+'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
 
-        integrationTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
-        integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5+'
+        integrationTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
+        integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
     }
 
     jar {
@@ -60,6 +62,30 @@ subprojects {
         publications {
             maven(MavenPublication) {
                 from components.java
+
+                pom {
+                    name = "Event Sequencer"
+                    description = "A high performance sequenced message stream implementation for event sourcing architectures"
+                    url = "https://github.com/buckersew/sequencer"
+                    licenses {
+                        license {
+                            name = "The Apache License, Version 2.0"
+                            url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = "buckersew"
+                            name = "Ed Buckney"
+                            email = "vivier.technologies@gmail.com"
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:https://github.com/buckersew/sequencer.git'
+                        developerConnection = 'scm:git:https://github.com/buckersew/sequencer.git'
+                        url = 'https://github.com/buckersew/sequencer.git'
+                    }
+                }
             }
         }
 
