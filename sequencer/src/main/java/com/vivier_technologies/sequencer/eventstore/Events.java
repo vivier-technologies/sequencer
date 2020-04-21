@@ -3,7 +3,7 @@ package com.vivier_technologies.sequencer.eventstore;
 import com.vivier_technologies.events.Event;
 
 /**
- * Efficient wrapper of lots of events
+ * Efficient wrapper of multiple events
  */
 public interface Events {
 

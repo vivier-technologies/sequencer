@@ -20,4 +20,9 @@ public class TestEventStore implements EventStore {
     public Events retrieve(long start, long end) {
         return null;
     }
+
+    @Override
+    public void close() {
+
+    }
 }

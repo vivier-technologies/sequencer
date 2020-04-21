@@ -37,11 +37,6 @@ class StandardJVMMultiplexerTest {
             }
 
             @Override
-            public void onShutdown() {
-                assertTrue(true);
-            }
-
-            @Override
             public void onWrite() {
                 assertTrue(mux.isRunning());
                 try {
@@ -50,7 +45,7 @@ class StandardJVMMultiplexerTest {
                     fail();
                 }
                 mux.remove(channel);
-                mux.shutdown();
+                mux.close();
             }
         });
         mux.run();

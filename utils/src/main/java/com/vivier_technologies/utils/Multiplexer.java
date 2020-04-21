@@ -14,7 +14,7 @@ public interface Multiplexer {
 
     void remove(AbstractSelectableChannel channel);
 
-    void shutdown();
+    void close();
 
     boolean isRunning();
 }

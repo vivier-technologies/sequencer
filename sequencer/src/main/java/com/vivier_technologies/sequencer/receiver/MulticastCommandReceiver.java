@@ -16,7 +16,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 public class MulticastCommandReceiver implements CommandReceiver, MultiplexerListener {
-    private static byte[] _componentName = "CMDRECEIVER".getBytes();
+    private static final byte[] _componentName = Logger.generateLoggingKey("CMDRECEIVER");
 
     private final String _multicastAddress;
     private final String _ip;
@@ -27,10 +27,14 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
     private final CommandProcessor _processor;
     private final ByteBufferCommand _command;
 
-    private Logger _logger;
+    private final Logger _logger;
     private DatagramChannel _channel;
 
-    private ByteBuffer _buffer;
+    private final ByteBuffer _buffer;
+
+    // Somewhat safe side depending on ethernet setup but this isn't meant for huge messages in multicast setup
+    // anyway so keeping it conservative - udp fragmentation is bad
+    private static int MAX_UDP_RECEIVE_SIZE = 576-8-20;
 
     @Inject
     public MulticastCommandReceiver(Logger logger, Multiplexer mux, Configuration configuration,
@@ -60,15 +64,17 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
         _mux = mux;
         _processor = processor;
 
+        if(receiveBufferSize > MAX_UDP_RECEIVE_SIZE)
+            throw new IllegalArgumentException("Command receiver buffer size too large");
+
         //TODO consider whether to allocate direct or not here..
         _buffer = ByteBufferFactory.nativeAllocateDirect(receiveBufferSize);
 
-        //TODO put into factory - if so need write interface to command as well
         _command = new ByteBufferCommand();
     }
 
     @Override
-    public void open() throws IOException {
+    public final void open() throws IOException {
         _channel = DatagramChannel.open(StandardProtocolFamily.INET);
         _channel.configureBlocking(false);
         NetworkInterface nif = NetworkInterface.getByInetAddress(InetAddress.getByName(_ip));
@@ -84,19 +90,19 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
     }
 
     @Override
-    public void onConnect() {
+    public final void onConnect() {
 
     }
 
     @Override
-    public void onAccept() {
+    public final void onAccept() {
 
     }
 
     @Override
-    public void onRead() {
-        // safe as command sender will timeout
+    public final void onRead() {
         try {
+            // will return a single datagram or nothing
             if(_channel.read(_buffer) > 0) {
                 _command.setData(_buffer);
                 _processor.process(_command);
@@ -110,13 +116,13 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
     }
 
     @Override
-    public void onWrite() {
+    public final void onWrite() {
 
     }
 
-    @Override
-    public void onShutdown() {
+    public final void close() {
         try {
+            _mux.remove(_channel);
             _channel.close();
         } catch (IOException e) {
             _logger.error(_componentName, "Unable to close socket");

@@ -10,4 +10,6 @@ public interface EventEmitter {
 
     void open() throws IOException;
 
+    void close();
+
 }

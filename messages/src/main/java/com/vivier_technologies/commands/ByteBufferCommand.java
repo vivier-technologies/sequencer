@@ -2,6 +2,13 @@ package com.vivier_technologies.commands;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Very basic naive implementation using standard java bytebuffer impl
+ *
+ * Will exhibit reasonable performance but need another implementation to go faster
+ *
+ * Methods marked as final for inlining
+ */
 public class ByteBufferCommand implements Command {
 
     private ByteBuffer _buffer;
@@ -13,11 +20,11 @@ public class ByteBufferCommand implements Command {
     }
 
     @Override
-    public ByteBuffer getData() {
+    public final ByteBuffer getData() {
         return _buffer;
     }
 
-    public ByteBufferCommand setData(ByteBuffer buffer) {
+    public final Command setData(ByteBuffer buffer) {
         _buffer = buffer;
         return this;
     }

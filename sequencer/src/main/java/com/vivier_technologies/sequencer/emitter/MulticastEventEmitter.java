@@ -2,6 +2,7 @@ package com.vivier_technologies.sequencer.emitter;
 
 
 import com.vivier_technologies.events.Event;
+import com.vivier_technologies.utils.Logger;
 import org.apache.commons.configuration2.Configuration;
 
 import javax.inject.Inject;
@@ -10,6 +11,8 @@ import java.net.*;
 import java.nio.channels.DatagramChannel;
 
 public class MulticastEventEmitter implements EventEmitter {
+    private static byte[] _componentName = Logger.generateLoggingKey("MCEVTEMITTER");
+
     private DatagramChannel _channel;
     private SocketAddress _multicastAddressSocket;
     private final String _multicastAddress;
@@ -37,12 +40,13 @@ public class MulticastEventEmitter implements EventEmitter {
     }
 
     @Override
-    public boolean send(Event event) throws IOException {
+    public final boolean send(Event event) throws IOException {
+        // send a single event packet
         return _channel.send(event.getData(), _multicastAddressSocket) != 0;
     }
 
     @Override
-    public void open() throws IOException {
+    public final void open() throws IOException {
         _channel = DatagramChannel.open(StandardProtocolFamily.INET);
         _channel.configureBlocking(false);
         NetworkInterface nif = NetworkInterface.getByInetAddress(InetAddress.getByName(_ip));
@@ -51,5 +55,14 @@ public class MulticastEventEmitter implements EventEmitter {
         _channel.setOption(StandardSocketOptions.SO_SNDBUF, _sendBufferSize);
         _channel.bind(null); // select any local address
         _multicastAddressSocket = new InetSocketAddress(_multicastAddress, _multicastPort);
+    }
+
+    @Override
+    public final void close() {
+        try {
+            _channel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

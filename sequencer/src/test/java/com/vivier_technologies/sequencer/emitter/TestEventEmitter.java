@@ -15,4 +15,9 @@ public class TestEventEmitter implements EventEmitter {
     public void open() throws IOException {
 
     }
+
+    @Override
+    public void close() {
+
+    }
 }

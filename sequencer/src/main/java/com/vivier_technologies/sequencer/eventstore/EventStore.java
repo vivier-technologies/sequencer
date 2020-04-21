@@ -12,4 +12,6 @@ public interface EventStore {
 
     Events retrieve(long start, long end);
 
+    void close();
+
 }

@@ -10,6 +10,12 @@ public interface Logger {
     byte[] ERROR = "ERROR".getBytes();
     byte[] INFO = "INFO".getBytes();
 
+    static byte[] generateLoggingKey(String s) {
+        if(s.length() > 16)
+            throw new IllegalArgumentException("Logging key limited to 16 bytes");
+        return s.getBytes();
+    }
+
     void info(byte[] component, String s);
 
     void info(byte[] component, String s1, String s2);

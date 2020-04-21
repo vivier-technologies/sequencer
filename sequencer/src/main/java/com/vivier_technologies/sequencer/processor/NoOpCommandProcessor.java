@@ -9,14 +9,16 @@ public class NoOpCommandProcessor implements CommandProcessor {
     private ByteBufferEvent _event;
 
     @Override
-    public Event process(Command command) {
-        // TODO Consider factory here
+    public final Event process(Command command) {
+        //TODO Consider factory here
+        //TODO handle command retries or assume client will back off?
+        //TODO handle command sequence gaps
         _event.setData(command.getData());
         return null;
     }
 
     @Override
-    public String getName() {
+    public final String getName() {
         return null;
     }
 }

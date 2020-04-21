@@ -8,4 +8,9 @@ public class TestCommandReceiver implements CommandReceiver {
     public void open() throws IOException {
 
     }
+
+    @Override
+    public void close() {
+
+    }
 }

@@ -11,6 +11,8 @@ import com.vivier_technologies.sequencer.eventstore.TestEventStore;
 import com.vivier_technologies.sequencer.processor.CommandProcessor;
 import com.vivier_technologies.sequencer.receiver.CommandReceiver;
 import com.vivier_technologies.sequencer.receiver.TestCommandReceiver;
+import com.vivier_technologies.sequencer.replay.EventReplay;
+import com.vivier_technologies.sequencer.replay.MulticastEventReplay;
 import org.apache.commons.configuration2.Configuration;
 import org.junit.jupiter.api.Test;
 import com.vivier_technologies.sequencer.processor.TestCommandProcessor;
@@ -35,6 +37,7 @@ public class SequencerTest {
                 bind(EventStore.class).to(TestEventStore.class);
                 bind(EventEmitter.class).to(TestEventEmitter.class);
                 bind(CommandReceiver.class).to(TestCommandReceiver.class);
+                bind(EventReplay.class).to(MulticastEventReplay.class);
             }
 
             @Provides

@@ -5,4 +5,5 @@ include 'utils'
 include 'sequencer'
 include 'client'
 include 'messages'
+include 'repeater'
 

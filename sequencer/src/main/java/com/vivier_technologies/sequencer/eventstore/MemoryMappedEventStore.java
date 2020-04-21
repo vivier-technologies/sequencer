@@ -1,23 +1,71 @@
 package com.vivier_technologies.sequencer.eventstore;
 
 import com.vivier_technologies.events.Event;
+import com.vivier_technologies.utils.Logger;
+import org.apache.commons.configuration2.Configuration;
 
+import javax.inject.Inject;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-public class MemoryMappedEventStore implements EventStore {
+public final class MemoryMappedEventStore implements EventStore {
 
-    @Override
-    public void open() throws IOException {
+    private static byte[] _componentName = Logger.generateLoggingKey("MMEVTSTORE");
+    private static Logger _logger;
 
+    private FileChannel _channel;
+    private MappedByteBuffer _buffer;
+
+    @Inject
+    public MemoryMappedEventStore(Configuration config, Logger logger) {
+        _logger = logger;
     }
 
     @Override
-    public boolean store(Event event) {
+    public final void open() throws IOException {
+        _channel = new RandomAccessFile("events.dat", "rw").getChannel();
+        System.out.println(_channel.size());
+        _buffer = _channel.map(FileChannel.MapMode.READ_WRITE, 0, Integer.MAX_VALUE);
+        System.out.println(_channel.size());
+        System.out.println(_buffer.position());
+        _buffer.order(ByteOrder.LITTLE_ENDIAN);
+        System.out.println(_channel.size());
+        System.out.println(_buffer.position());
+        _buffer.putInt(12);
+        System.out.println(_buffer.position());
+        _buffer.force();
+        System.out.println(_channel.size());
+        _channel.force(true);
+        System.out.println(_channel.size());
+        Files.delete(Path.of("events.dat"));
+        System.out.println(Integer.MAX_VALUE / 12);
+        //Files.by
+    }
+
+    @Override
+    public final void close() {
+        try {
+            _buffer.force();
+            _channel.force(true);
+            _channel.close();
+            _buffer = null;
+        } catch (IOException e) {
+            _logger.error(_componentName, "Unable to close socket");
+        }
+    }
+
+    @Override
+    public final boolean store(Event event) {
         return false;
     }
 
     @Override
-    public Events retrieve(long start, long end) {
+    public final Events retrieve(long start, long end) {
         return null;
     }
 }

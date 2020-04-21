@@ -13,6 +13,8 @@ import java.util.Iterator;
 
 /**
  * Uses standard VM selector implementation which generates quite a bit of garbage..
+ *
+ * Needs rework around selection keys to avoid this garbage down the track
  */
 public class StandardJVMMultiplexer implements Multiplexer, Scheduler {
     private Selector _selector;
@@ -68,7 +70,7 @@ public class StandardJVMMultiplexer implements Multiplexer, Scheduler {
         return _run;
     }
 
-    public void shutdown() {
+    public void close() {
         _run = false;
     }
 
