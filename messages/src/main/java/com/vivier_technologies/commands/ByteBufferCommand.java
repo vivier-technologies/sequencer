@@ -15,7 +15,7 @@ public class ByteBufferCommand implements Command {
     private ByteBufferCommandHeader _header = new ByteBufferCommandHeader();
 
     @Override
-    public CommandHeader getHeader() {
+    public final CommandHeader getHeader() {
         return _header.setData(_buffer);
     }
 
