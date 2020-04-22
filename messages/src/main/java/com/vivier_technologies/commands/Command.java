@@ -8,6 +8,7 @@ public interface Command {
 
     CommandHeader getHeader();
 
+    //TODO consider whether bytebuffer is the right abstraction here
     ByteBuffer getData();
 
 }
