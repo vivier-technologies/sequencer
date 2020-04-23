@@ -108,7 +108,9 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
     public final void onRead() {
         try {
             // will return a single datagram or nothing
+            _buffer.clear();
             _channel.receive(_buffer);
+            _buffer.flip();
             _command.setData(_buffer);
             // deliberately missing a check for whether the listener is set given this is on the critical
             // processing path...

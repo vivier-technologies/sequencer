@@ -7,7 +7,7 @@ import com.google.inject.Provides;
 import com.vivier_technologies.sequencer.emitter.EventEmitter;
 import com.vivier_technologies.sequencer.emitter.MulticastEventEmitter;
 import com.vivier_technologies.sequencer.eventstore.EventStore;
-import com.vivier_technologies.sequencer.eventstore.MemoryMappedEventStore;
+import com.vivier_technologies.sequencer.eventstore.InMemoryEventStore;
 import com.vivier_technologies.sequencer.processor.CommandProcessor;
 import com.vivier_technologies.sequencer.receiver.CommandReceiver;
 import com.vivier_technologies.sequencer.receiver.MulticastCommandReceiver;
@@ -24,7 +24,7 @@ public class CommandLineLauncher {
 
     public static void main(String[] args) {
 
-        // TODO get from config
+        // TODO get logger type from config
         Logger logger = new ConsoleLogger();
         logger.info(CommandLineLauncher._componentName, "Sequencer starting");
 
@@ -38,14 +38,14 @@ public class CommandLineLauncher {
                                 "com.vivier_technologies.sequencer.processor.NoOpCommandProcessor"));
                 Injector injector = Guice.createInjector(new AbstractModule() {
 
-                    // TODO make more advanced with multiple modules etc but for now just get it going
+                    // TODO make more advanced with multiple modules etc for different setups but for now just get it going
                     @Override
                     protected void configure() {
                         // bit weak but not sure there is another way here
                         bind(CommandProcessor.class).to(
                                 (Class<? extends CommandProcessor>) commandProcessorClass).asEagerSingleton();
 
-                        bind(EventStore.class).to(MemoryMappedEventStore.class).asEagerSingleton();
+                        bind(EventStore.class).to(InMemoryEventStore.class).asEagerSingleton();
                         bind(Multiplexer.class).to(StandardJVMMultiplexer.class).asEagerSingleton();
 
                         bind(EventEmitter.class).to(MulticastEventEmitter.class);

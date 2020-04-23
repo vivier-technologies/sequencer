@@ -27,9 +27,9 @@ public class NoOpCommandProcessor implements CommandProcessor {
         //TODO handle command retries or assume client will back off?
         //TODO handle command sequence gaps
         //TODO make sure command size won't breach max message size
-        //_event.setData(command.getData());
+        _event.setData(command.getData());
         _logger.info(_componentName, "Received command - processing");
-        return null;
+        return _event;
     }
 
     @Override
