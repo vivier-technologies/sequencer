@@ -1,7 +1,6 @@
 package com.vivier_technologies.sequencer.receiver;
 
 import com.vivier_technologies.commands.ByteBufferCommand;
-import com.vivier_technologies.sequencer.processor.CommandProcessor;
 import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
 import com.vivier_technologies.utils.Multiplexer;
@@ -26,23 +25,21 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
     private final int _maxCommandSize;
 
     private final Multiplexer _mux;
-    private final CommandProcessor _processor;
     private final ByteBufferCommand _command;
 
     private final Logger _logger;
+    private final ByteBuffer _buffer;
 
     private DatagramChannel _channel;
-    private final ByteBuffer _buffer;
+    private CommandListener _listener;
 
     private final int NETWORK_HEADERS = 8+20; // UDP and IP respectively
 
     @Inject
-    public MulticastCommandReceiver(Logger logger, Multiplexer mux, Configuration configuration,
-                                    CommandProcessor processor) {
+    public MulticastCommandReceiver(Logger logger, Multiplexer mux, Configuration configuration) {
 
         this(logger,
                 mux,
-                processor,
                 configuration.getString("sequencer.commandreceiver.ip"),
                 configuration.getString("sequencer.commandreceiver.multicast.ip"),
                 configuration.getInt("sequencer.commandreceiver.multicast.port"),
@@ -52,7 +49,12 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
 
     }
 
-    public MulticastCommandReceiver(Logger logger, Multiplexer mux, CommandProcessor processor,
+    @Override
+    public void setListener(CommandListener listener) {
+        _listener = listener;
+    }
+
+    public MulticastCommandReceiver(Logger logger, Multiplexer mux,
                                     String ip, String multicastAddress, int multicastPort,
                                     boolean multicastLoopback, int receiveBufferSize, int maxCommandSize) {
         _ip = ip;
@@ -64,7 +66,6 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
 
         _logger = logger;
         _mux = mux;
-        _processor = processor;
 
         //TODO consider whether to allocate direct or not here..
         _buffer = ByteBufferFactory.nativeAllocateDirect(_maxCommandSize);
@@ -109,7 +110,9 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
             // will return a single datagram or nothing
             _channel.receive(_buffer);
             _command.setData(_buffer);
-            _processor.process(_command);
+            // deliberately missing a check for whether the listener is set given this is on the critical
+            // processing path...
+            _listener.onCommand(_command);
         } catch (IOException e) {
             _logger.error(_componentName, "Unable to read from channel into buffer");
         }

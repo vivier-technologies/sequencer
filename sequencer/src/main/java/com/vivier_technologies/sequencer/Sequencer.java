@@ -1,8 +1,11 @@
 package com.vivier_technologies.sequencer;
 
+import com.vivier_technologies.commands.Command;
+import com.vivier_technologies.events.Event;
 import com.vivier_technologies.sequencer.emitter.EventEmitter;
 import com.vivier_technologies.sequencer.eventstore.EventStore;
 import com.vivier_technologies.sequencer.processor.CommandProcessor;
+import com.vivier_technologies.sequencer.receiver.CommandListener;
 import com.vivier_technologies.sequencer.receiver.CommandReceiver;
 import com.vivier_technologies.sequencer.replay.EventReplay;
 import com.vivier_technologies.utils.Logger;
@@ -11,7 +14,7 @@ import com.vivier_technologies.utils.Multiplexer;
 import javax.inject.Inject;
 import java.io.IOException;
 
-public class Sequencer {
+public class Sequencer implements CommandListener {
 
     private static final byte[] _componentName = Logger.generateLoggingKey("SEQUENCER");
 
@@ -34,6 +37,8 @@ public class Sequencer {
         _emitter = emitter;
         _receiver = receiver;
         _replayer = replayer;
+
+        _receiver.setListener(this);
     }
 
     public CommandProcessor getProcessor() {
@@ -64,6 +69,17 @@ public class Sequencer {
         _emitter.close();
         _eventStore.close();
         _mux.close();
+    }
+
+    @Override
+    public void onCommand(Command command) {
+        Event e = _processor.process(command);
+        _eventStore.store(e);
+        try {
+            _emitter.send(e);
+        } catch (IOException ioException) {
+            _logger.error(_componentName, "Unable to send event for command - clients will request replay from sequencer");
+        }
     }
 }
 

@@ -7,4 +7,6 @@ public interface CommandReceiver {
     void open() throws IOException;
 
     void close();
+
+    void setListener(CommandListener listener);
 }

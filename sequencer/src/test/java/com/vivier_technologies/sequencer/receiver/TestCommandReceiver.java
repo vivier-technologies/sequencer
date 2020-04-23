@@ -13,4 +13,9 @@ public class TestCommandReceiver implements CommandReceiver {
     public void close() {
 
     }
+
+    @Override
+    public void setListener(CommandListener listener) {
+
+    }
 }

@@ -7,6 +7,7 @@ allprojects {
     repositories {
         mavenCentral()
     }
+
 }
 
 subprojects {
@@ -92,6 +93,10 @@ project(':sequencer') {
 
     testSets {
         integrationTest
+    }
+
+    integrationTest {
+        useJUnitPlatform()
     }
 
     dependencies {
