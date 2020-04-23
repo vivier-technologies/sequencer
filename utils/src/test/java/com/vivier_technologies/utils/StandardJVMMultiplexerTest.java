@@ -14,7 +14,7 @@ class StandardJVMMultiplexerTest {
 
     @Test
     public void testRegisterAndRemove() throws IOException {
-        Multiplexer mux = new StandardJVMMultiplexer(null, new ConsoleLogger());
+        Multiplexer mux = new StandardJVMMultiplexer(new ConsoleLogger());
         mux.open();
 
         // TODO think about mocking but might be challenging..

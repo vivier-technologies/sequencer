@@ -8,6 +8,10 @@ import java.nio.ByteBuffer;
  * Will exhibit reasonable performance but need another implementation to go faster
  *
  * Methods marked as final for inlining
+ *
+ * No checking is deliberate - could think about adding checks based on system property later..
+ *
+ * Intended to be run single threaded so not worrying about padding to avoid false sharing etc
  */
 public class ByteBufferEventHeader implements EventHeader {
     private ByteBuffer _buffer;

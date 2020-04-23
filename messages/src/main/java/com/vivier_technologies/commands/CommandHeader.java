@@ -16,6 +16,9 @@ public interface CommandHeader {
 
     byte[] getSource();
 
+    // unlikely to ever have a single sender put out more than 2^31-1 messages so deliberately using int
     int getSequence();
+
+    void setHeader(int length, short type, byte[] src, int sequence);
 
 }

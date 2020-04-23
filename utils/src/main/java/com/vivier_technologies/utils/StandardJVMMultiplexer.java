@@ -1,7 +1,5 @@
 package com.vivier_technologies.utils;
 
-import org.apache.commons.configuration2.Configuration;
-
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
@@ -23,7 +21,7 @@ public class StandardJVMMultiplexer implements Multiplexer, Scheduler {
 
 
     @Inject
-    public StandardJVMMultiplexer(Configuration config, Logger logger) {
+    public StandardJVMMultiplexer(Logger logger) {
         _logger = logger;
     }
 
