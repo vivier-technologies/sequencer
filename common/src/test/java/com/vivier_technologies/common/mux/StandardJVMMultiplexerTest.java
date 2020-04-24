@@ -1,5 +1,6 @@
-package com.vivier_technologies.utils;
+package com.vivier_technologies.common.mux;
 
+import com.vivier_technologies.utils.ConsoleLogger;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

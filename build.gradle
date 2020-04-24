@@ -100,7 +100,7 @@ project(':sequencer') {
     }
 
     dependencies {
-        implementation project(':utils'), project(':messages')
+        implementation project(':common'), project(':utils'), project(':messages')
 
         integrationTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
         integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
@@ -123,13 +123,18 @@ project(':messages') {
 
 project(':client') {
     dependencies {
-        implementation project(':utils'), project(':messages')
+        implementation project(':common'), project(':utils'), project(':messages')
     }
 }
 
 project(':repeater') {
     dependencies {
-        implementation project(':utils'), project(':messages')
+        implementation project(':common')
     }
 }
 
+project(':common') {
+    dependencies {
+        implementation project(':utils'), project(':messages')
+    }
+}

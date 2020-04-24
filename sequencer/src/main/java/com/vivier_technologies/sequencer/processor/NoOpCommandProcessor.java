@@ -33,6 +33,11 @@ public class NoOpCommandProcessor implements CommandProcessor {
     }
 
     @Override
+    public Event process(Event event) {
+        return null;
+    }
+
+    @Override
     public final String getName() {
         return null;
     }

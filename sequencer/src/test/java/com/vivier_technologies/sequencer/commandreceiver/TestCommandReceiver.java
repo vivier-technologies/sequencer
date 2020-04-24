@@ -1,4 +1,4 @@
-package com.vivier_technologies.sequencer.receiver;
+package com.vivier_technologies.sequencer.commandreceiver;
 
 import java.io.IOException;
 

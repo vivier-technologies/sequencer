@@ -1,15 +1,15 @@
-package com.vivier_technologies.sequencer.receiver;
+package com.vivier_technologies.sequencer.commandreceiver;
 
 import com.vivier_technologies.commands.ByteBufferCommand;
+import com.vivier_technologies.common.mux.Multiplexer;
+import com.vivier_technologies.common.mux.MultiplexerListener;
 import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
-import com.vivier_technologies.utils.Multiplexer;
-import com.vivier_technologies.utils.MultiplexerListener;
+import com.vivier_technologies.utils.MulticastUtils;
 import org.apache.commons.configuration2.Configuration;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
@@ -33,8 +33,6 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
     private DatagramChannel _channel;
     private CommandListener _listener;
 
-    private final int NETWORK_HEADERS = 8+20; // UDP and IP respectively
-
     @Inject
     public MulticastCommandReceiver(Logger logger, Multiplexer mux, Configuration configuration) {
 
@@ -47,11 +45,6 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
                 configuration.getInt("sequencer.commandreceiver.osbuffersize"),
                 configuration.getInt("sequencer.maxmessagesize"));
 
-    }
-
-    @Override
-    public void setListener(CommandListener listener) {
-        _listener = listener;
     }
 
     public MulticastCommandReceiver(Logger logger, Multiplexer mux,
@@ -74,22 +67,14 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
     }
 
     @Override
+    public void setListener(CommandListener listener) {
+        _listener = listener;
+    }
+
+    @Override
     public final void open() throws IOException {
-        NetworkInterface nif = NetworkInterface.getByInetAddress(InetAddress.getByName(_ip));
-        if(_maxCommandSize > nif.getMTU() - NETWORK_HEADERS)
-            throw new IllegalArgumentException("Command receiver buffer size too large");
-
-        _channel = DatagramChannel.open(StandardProtocolFamily.INET);
-        _channel.configureBlocking(false);
-
-
-        _channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
-        _channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nif);
-        _channel.setOption(StandardSocketOptions.IP_MULTICAST_LOOP, _multicastLoopback);
-        _channel.setOption(StandardSocketOptions.SO_RCVBUF, _receiveBufferSize);
-
-        _channel.bind(new InetSocketAddress(_multicastPort));
-        _channel.join(InetAddress.getByName(_multicastAddress), nif);
+        _channel = MulticastUtils.setupReceiveChannel(_ip, _multicastAddress, _multicastPort, _multicastLoopback,
+                _receiveBufferSize, _maxCommandSize);
 
         _mux.register(_channel, SelectionKey.OP_READ, this);
     }

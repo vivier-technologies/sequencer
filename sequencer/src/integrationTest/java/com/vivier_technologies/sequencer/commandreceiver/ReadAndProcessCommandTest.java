@@ -1,9 +1,9 @@
-package com.vivier_technologies.sequencer.receiver;
+package com.vivier_technologies.sequencer.commandreceiver;
 
 import com.vivier_technologies.commands.ByteBufferCommand;
+import com.vivier_technologies.common.mux.Multiplexer;
+import com.vivier_technologies.common.mux.StandardJVMMultiplexer;
 import com.vivier_technologies.utils.ConsoleLogger;
-import com.vivier_technologies.utils.Multiplexer;
-import com.vivier_technologies.utils.StandardJVMMultiplexer;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;

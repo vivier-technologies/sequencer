@@ -29,11 +29,11 @@ public class BasicCommandSender {
 
     public BasicCommandSender(Logger logger, Configuration configuration) throws IOException {
         this(logger,
-                configuration.getString("sequencer.commandreceiver.ip"),
-                configuration.getString("sequencer.commandreceiver.multicast.ip"),
-                configuration.getInt("sequencer.commandreceiver.multicast.port"),
+                configuration.getString("sequencer.commandsender.ip"),
+                configuration.getString("sequencer.commandsender.multicast.ip"),
+                configuration.getInt("sequencer.commandsender.multicast.port"),
                 configuration.getBoolean("sequencer.loopback"),
-                configuration.getInt("sequencer.commandreceiver.osbuffersize"),
+                configuration.getInt("sequencer.commandsender.osbuffersize"),
                 configuration.getInt("sequencer.maxmessagesize"));
     }
 

@@ -1,4 +1,4 @@
-package com.vivier_technologies.utils;
+package com.vivier_technologies.common.mux;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;

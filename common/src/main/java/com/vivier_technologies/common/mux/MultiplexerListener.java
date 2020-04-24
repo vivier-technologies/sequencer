@@ -1,4 +1,4 @@
-package com.vivier_technologies.utils;
+package com.vivier_technologies.common.mux;
 
 public interface MultiplexerListener {
 
