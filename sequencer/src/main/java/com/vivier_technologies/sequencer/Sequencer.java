@@ -2,13 +2,13 @@ package com.vivier_technologies.sequencer;
 
 import com.vivier_technologies.commands.Command;
 import com.vivier_technologies.common.admin.AdminListener;
+import com.vivier_technologies.common.eventreceiver.EventListener;
+import com.vivier_technologies.common.eventreceiver.EventReceiver;
 import com.vivier_technologies.common.mux.Multiplexer;
 import com.vivier_technologies.events.Event;
 import com.vivier_technologies.sequencer.commandreceiver.CommandListener;
 import com.vivier_technologies.sequencer.commandreceiver.CommandReceiver;
 import com.vivier_technologies.sequencer.emitter.EventEmitter;
-import com.vivier_technologies.sequencer.eventreceiver.EventListener;
-import com.vivier_technologies.sequencer.eventreceiver.EventReceiver;
 import com.vivier_technologies.sequencer.eventstore.EventStore;
 import com.vivier_technologies.sequencer.processor.CommandProcessor;
 import com.vivier_technologies.sequencer.replay.EventReplay;

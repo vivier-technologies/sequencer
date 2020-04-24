@@ -3,11 +3,14 @@ package com.vivier_technologies.sequencer.emitter;
 
 import com.vivier_technologies.events.Event;
 import com.vivier_technologies.utils.Logger;
+import com.vivier_technologies.utils.MulticastUtils;
 import org.apache.commons.configuration2.Configuration;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
@@ -59,15 +62,8 @@ public class MulticastEventEmitter implements EventEmitter {
 
     @Override
     public final void open() throws IOException {
-        _channel = DatagramChannel.open(StandardProtocolFamily.INET);
-        _channel.configureBlocking(false);
-        NetworkInterface nif = NetworkInterface.getByInetAddress(InetAddress.getByName(_ip));
-        _channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nif);
-        _channel.setOption(StandardSocketOptions.IP_MULTICAST_LOOP, _multicastLoopback);
-        _channel.setOption(StandardSocketOptions.SO_SNDBUF, _sendBufferSize);
-        _channel.bind(null); // select any local address
         InetAddress multicastAddress = InetAddress.getByName(_multicastAddress);
-        _channel.join(multicastAddress, nif);
+        _channel = MulticastUtils.setupSendChannel(_ip, multicastAddress, _multicastPort, _multicastLoopback, _sendBufferSize);
         _multicastAddressSocket = new InetSocketAddress(multicastAddress, _multicastPort);
     }
 

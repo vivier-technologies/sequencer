@@ -29,4 +29,17 @@ public class MulticastUtils {
 
         return channel;
     }
+    
+    public static DatagramChannel setupSendChannel(String ip, InetAddress multicastAddress, int multicastPort,
+                                                   boolean multicastLoopback, int sendBufferSize) throws IOException {
+        DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
+        channel.configureBlocking(false);
+        NetworkInterface nif = NetworkInterface.getByInetAddress(InetAddress.getByName(ip));
+        channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nif);
+        channel.setOption(StandardSocketOptions.IP_MULTICAST_LOOP, multicastLoopback);
+        channel.setOption(StandardSocketOptions.SO_SNDBUF, sendBufferSize);
+        channel.bind(null); // select any local address
+        channel.join(multicastAddress, nif);
+        return channel;
+    }
 }

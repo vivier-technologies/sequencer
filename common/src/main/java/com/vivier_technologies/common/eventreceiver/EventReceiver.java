@@ -1,4 +1,4 @@
-package com.vivier_technologies.sequencer.eventreceiver;
+package com.vivier_technologies.common.eventreceiver;
 
 import java.io.IOException;
 
