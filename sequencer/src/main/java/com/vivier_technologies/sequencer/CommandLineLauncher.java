@@ -10,6 +10,8 @@ import com.vivier_technologies.sequencer.commandreceiver.CommandReceiver;
 import com.vivier_technologies.sequencer.commandreceiver.MulticastCommandReceiver;
 import com.vivier_technologies.sequencer.emitter.EventEmitter;
 import com.vivier_technologies.sequencer.emitter.MulticastEventEmitter;
+import com.vivier_technologies.sequencer.eventreceiver.EventReceiver;
+import com.vivier_technologies.sequencer.eventreceiver.MulticastEventReceiver;
 import com.vivier_technologies.sequencer.eventstore.EventStore;
 import com.vivier_technologies.sequencer.eventstore.InMemoryEventStore;
 import com.vivier_technologies.sequencer.processor.CommandProcessor;
@@ -57,6 +59,7 @@ public class CommandLineLauncher {
 
                         bind(EventEmitter.class).to(MulticastEventEmitter.class);
                         bind(CommandReceiver.class).to(MulticastCommandReceiver.class);
+                        bind(EventReceiver.class).to(MulticastEventReceiver.class);
                         bind(EventReplay.class).to(MulticastEventReplay.class);
                     }
 
