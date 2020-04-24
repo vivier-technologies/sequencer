@@ -29,6 +29,7 @@ public class CommandLineLauncher {
         logger.info(CommandLineLauncher._componentName, "Sequencer starting");
 
         try {
+            // TODO this configuration may create rather a lot of classes which may not be ideal but just getting going for now
             Configuration config = ConfigReader.getConfig(logger, args);
             // load different modules depending on options on command line
             // allow different command processors on command line to be plugged in
@@ -36,6 +37,8 @@ public class CommandLineLauncher {
                 final Class commandProcessorClass =
                         Class.forName(config.getString("sequencer.commandprocessor",
                                 "com.vivier_technologies.sequencer.processor.NoOpCommandProcessor"));
+
+                // TODO guice may create rather a lot of classes which may not be ideal but just getting going for now
                 Injector injector = Guice.createInjector(new AbstractModule() {
 
                     // TODO make more advanced with multiple modules etc for different setups but for now just get it going
