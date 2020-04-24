@@ -41,17 +41,18 @@ public class BasicSingleCommandSender implements EventListener {
     public BasicSingleCommandSender(Logger logger, Configuration configuration) throws IOException {
         String source = configuration.getString("source");
         ByteArrayUtils.copyAndPadRightWithSpaces(source.getBytes(), _source, 0, _source.length);
-        _ip = configuration.getString("sequencer.commandsender.ip");
-        _multicastAddress = configuration.getString("sequencer.commandsender.multicast.ip");
-        _multicastPort = configuration.getInt("sequencer.commandsender.multicast.port");
+        _ip = configuration.getString("sequencer.command.sender.ip");
+        _multicastAddress = configuration.getString("sequencer.command.sender.multicast.ip");
+        _multicastPort = configuration.getInt("sequencer.command.sender.multicast.port");
         _multicastLoopback = configuration.getBoolean("sequencer.loopback");
-        _sendBufferSize = configuration.getInt("sequencer.commandsender.osbuffersize");
+        _sendBufferSize = configuration.getInt("sequencer.command.sender.osbuffersize");
         _maxCommandSize = configuration.getInt("sequencer.maxmessagesize");
         _logger = logger;
 
         _mux = new StandardJVMMultiplexer(logger);
 
         _eventReceiver = new MulticastEventReceiver(logger, _mux, configuration);
+        _eventReceiver.setListener(this);
 
         _buffer = ByteBufferFactory.nativeAllocate(1024);
         _command = new ByteBufferCommand(_buffer);

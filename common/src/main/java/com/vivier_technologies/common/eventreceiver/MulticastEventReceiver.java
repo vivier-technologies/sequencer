@@ -39,11 +39,11 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerListene
 
         this(logger,
                 mux,
-                configuration.getString("sequencer.eventreceiver.ip"),
-                configuration.getString("sequencer.eventreceiver.multicast.ip"),
-                configuration.getInt("sequencer.eventreceiver.multicast.port"),
+                configuration.getString("sequencer.event.receiver.ip"),
+                configuration.getString("sequencer.event.receiver.multicast.ip"),
+                configuration.getInt("sequencer.event.receiver.multicast.port"),
                 configuration.getBoolean("sequencer.loopback"),
-                configuration.getInt("sequencer.eventreceiver.osbuffersize"),
+                configuration.getInt("sequencer.event.receiver.osbuffersize"),
                 configuration.getInt("sequencer.maxmessagesize"));
 
     }
@@ -114,8 +114,10 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerListene
 
     public final void close() {
         try {
-            _mux.remove(_channel);
-            _channel.close();
+            if(_channel != null) {
+                _mux.remove(_channel);
+                _channel.close();
+            }
         } catch (IOException e) {
             _logger.error(_componentName, "Unable to close socket");
         }

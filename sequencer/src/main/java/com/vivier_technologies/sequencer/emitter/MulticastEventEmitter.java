@@ -31,11 +31,11 @@ public class MulticastEventEmitter implements EventEmitter {
     @Inject
     public MulticastEventEmitter(Logger logger, Configuration configuration) throws IOException {
         this(logger,
-                configuration.getString("sequencer.eventemitter.ip"),
-                configuration.getString("sequencer.eventemitter.multicast.ip"),
-                configuration.getInt("sequencer.eventemitter.multicast.port"),
+                configuration.getString("sequencer.event.emitter.ip"),
+                configuration.getString("sequencer.event.emitter.multicast.ip"),
+                configuration.getInt("sequencer.event.emitter.multicast.port"),
                 configuration.getBoolean("sequencer.loopback"),
-                configuration.getInt("sequencer.eventemitter.osbuffersize"),
+                configuration.getInt("sequencer.event.emitter.osbuffersize"),
                 configuration.getInt("sequencer.maxmessagesize"));
     }
 
@@ -70,9 +70,11 @@ public class MulticastEventEmitter implements EventEmitter {
     @Override
     public final void close() {
         try {
-            _channel.close();
+            if(_channel != null) {
+                _channel.close();
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            _logger.error(_componentName, "Unable to close event emitter");
         }
     }
 }

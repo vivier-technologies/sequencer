@@ -38,11 +38,11 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
 
         this(logger,
                 mux,
-                configuration.getString("sequencer.commandreceiver.ip"),
-                configuration.getString("sequencer.commandreceiver.multicast.ip"),
-                configuration.getInt("sequencer.commandreceiver.multicast.port"),
+                configuration.getString("sequencer.command.receiver.ip"),
+                configuration.getString("sequencer.command.receiver.multicast.ip"),
+                configuration.getInt("sequencer.command.receiver.multicast.port"),
                 configuration.getBoolean("sequencer.loopback"),
-                configuration.getInt("sequencer.commandreceiver.osbuffersize"),
+                configuration.getInt("sequencer.command.receiver.osbuffersize"),
                 configuration.getInt("sequencer.maxmessagesize"));
 
     }
@@ -113,10 +113,12 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
 
     public final void close() {
         try {
-            _mux.remove(_channel);
-            _channel.close();
+            if(_channel != null) {
+                _mux.remove(_channel);
+                _channel.close();
+            }
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to close socket");
+            _logger.error(_componentName, "Unable to close command receiver");
         }
     }
 

@@ -64,6 +64,10 @@ public class Sequencer implements CommandListener, EventListener, AdminListener 
             _mux.open();
             _eventStore.open();
 
+            /////TEMP//////
+            onGoActive();
+            ///////////////
+
             _mux.run();
         } catch (IOException e) {
             _logger.error(_componentName, "Unable to start as cannot open dependent modules");
@@ -73,8 +77,12 @@ public class Sequencer implements CommandListener, EventListener, AdminListener 
     public void stop() {
         // close receiver first
         _commandReceiver.close();
+
+        _eventReceiver.close();
+        _replayer.close();
         _emitter.close();
         _eventStore.close();
+
         _mux.close();
     }
 
@@ -104,8 +112,9 @@ public class Sequencer implements CommandListener, EventListener, AdminListener 
     public void onGoActive() {
         try {
             _commandReceiver.open();
+            _emitter.open();
             _active = true;
-            // send out start of stream if its the start of the stream
+            // TODO send out start of stream if its the start of the stream
         } catch (IOException e) {
             _logger.error(_componentName, "Unable to go active as cannot open command receiver");
         }
@@ -114,9 +123,11 @@ public class Sequencer implements CommandListener, EventListener, AdminListener 
     @Override
     public void onGoPassive() {
         try {
+            // start listening to events on assumption another sequencer is taking over
             _eventReceiver.open();
             // stop listening to commands
             _commandReceiver.close();
+            _emitter.close();
             _active = false;
         } catch (IOException e) {
             _logger.error(_componentName, "Unable to go passive as cannot open event receiver");
@@ -126,7 +137,7 @@ public class Sequencer implements CommandListener, EventListener, AdminListener 
     @Override
     public void onShutdown() {
         if(_active) {
-            // send end of stream out
+            // TODO send end of stream out
         }
         stop();
     }
