@@ -12,6 +12,8 @@ public interface EventStore {
 
     Events retrieve(long start, long end);
 
+    boolean isEmpty();
+
     void close();
 
 }

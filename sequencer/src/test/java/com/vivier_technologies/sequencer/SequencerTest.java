@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
+import com.vivier_technologies.common.admin.StatusEmitter;
 import com.vivier_technologies.common.eventreceiver.EventReceiver;
 import com.vivier_technologies.common.mux.Multiplexer;
 import com.vivier_technologies.common.mux.StandardJVMMultiplexer;
@@ -41,6 +42,7 @@ public class SequencerTest {
                 bind(CommandReceiver.class).to(TestCommandReceiver.class);
                 bind(EventReceiver.class).to(TestEventReceiver.class);
                 bind(EventReplay.class).to(MulticastEventReplay.class);
+                bind(StatusEmitter.class).to(TestStatusEmitter.class);
             }
 
             @Provides

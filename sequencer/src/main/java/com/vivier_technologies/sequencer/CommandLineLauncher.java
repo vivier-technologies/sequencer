@@ -4,6 +4,10 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
+import com.vivier_technologies.common.admin.AdminReceiver;
+import com.vivier_technologies.common.admin.MulticastAdminReceiver;
+import com.vivier_technologies.common.admin.MulticastStatusEmitter;
+import com.vivier_technologies.common.admin.StatusEmitter;
 import com.vivier_technologies.common.eventreceiver.EventReceiver;
 import com.vivier_technologies.common.eventreceiver.MulticastEventReceiver;
 import com.vivier_technologies.common.mux.Multiplexer;
@@ -61,6 +65,8 @@ public class CommandLineLauncher {
                         bind(CommandReceiver.class).to(MulticastCommandReceiver.class);
                         bind(EventReceiver.class).to(MulticastEventReceiver.class);
                         bind(EventReplay.class).to(MulticastEventReplay.class);
+                        bind(StatusEmitter.class).to(MulticastStatusEmitter.class);
+                        bind(AdminReceiver.class).to(MulticastAdminReceiver.class);
                     }
 
                     @Provides

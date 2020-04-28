@@ -2,7 +2,7 @@ package com.vivier_technologies.common.admin;
 
 public interface Status {
 
-    boolean isActive();
+    int INSTANCE_NAME_LEN = 16;
 
-    byte[] getInstanceName();
+    boolean isActive();
 }

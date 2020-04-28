@@ -68,4 +68,9 @@ public final class MemoryMappedEventStore implements EventStore {
     public final Events retrieve(long start, long end) {
         return null;
     }
+
+    @Override
+    public boolean isEmpty() {
+        return true;
+    }
 }

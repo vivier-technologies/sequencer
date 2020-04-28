@@ -24,4 +24,9 @@ public class InMemoryEventStore implements EventStore {
     public void close() {
 
     }
+
+    @Override
+    public boolean isEmpty() {
+        return true;
+    }
 }

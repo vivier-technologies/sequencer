@@ -88,7 +88,7 @@ public class BasicSingleCommandSender implements EventListener {
 
     @Override
     public void onEvent(Event event) {
-        // validate it was ours
+        // validate it was ours - can just check source because we only send one at a time
         if(Arrays.equals(event.getHeader().getSource(), _source)) {
             _logger.info(_componentName, "RCVD");
             close();
