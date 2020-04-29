@@ -1,7 +1,7 @@
 package com.vivier_technologies.common.eventreceiver;
 
 import com.vivier_technologies.common.mux.Multiplexer;
-import com.vivier_technologies.common.mux.MultiplexerListener;
+import com.vivier_technologies.common.mux.MultiplexerHandler;
 import com.vivier_technologies.events.ByteBufferEvent;
 import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
-public class MulticastEventReceiver implements EventReceiver, MultiplexerListener {
+public class MulticastEventReceiver implements EventReceiver, MultiplexerHandler {
 
     private static final byte[] _componentName = Logger.generateLoggingKey("EVTRECEIVER");
 
@@ -32,7 +32,7 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerListene
     private final ByteBuffer _buffer;
 
     private DatagramChannel _channel;
-    private EventListener _listener;
+    private EventHandler _listener;
 
     @Inject
     public MulticastEventReceiver(Logger logger, Multiplexer mux, Configuration configuration) {
@@ -68,7 +68,7 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerListene
     }
 
     @Override
-    public void setListener(EventListener listener) {
+    public void setHandler(EventHandler listener) {
         _listener = listener;
     }
 

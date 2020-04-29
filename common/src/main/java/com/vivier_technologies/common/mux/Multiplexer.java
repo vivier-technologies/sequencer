@@ -10,7 +10,7 @@ public interface Multiplexer {
 
     void run() throws IOException;
 
-    void register(AbstractSelectableChannel channel, int ops, MultiplexerListener handler) throws ClosedChannelException;
+    void register(AbstractSelectableChannel channel, int ops, MultiplexerHandler handler) throws ClosedChannelException;
 
     void remove(AbstractSelectableChannel channel);
 

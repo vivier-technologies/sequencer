@@ -8,5 +8,5 @@ public interface CommandReceiver {
 
     void close();
 
-    void setListener(CommandListener listener);
+    void setHandler(CommandHandler listener);
 }

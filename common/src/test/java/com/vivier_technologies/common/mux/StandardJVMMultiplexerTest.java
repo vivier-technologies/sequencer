@@ -21,7 +21,7 @@ class StandardJVMMultiplexerTest {
         // TODO think about mocking but might be challenging..
         AbstractSelectableChannel channel = DatagramChannel.open();
         channel.configureBlocking(false);
-        mux.register(channel, SelectionKey.OP_WRITE, new MultiplexerListener() {
+        mux.register(channel, SelectionKey.OP_WRITE, new MultiplexerHandler() {
             @Override
             public void onConnect() {
                 fail();

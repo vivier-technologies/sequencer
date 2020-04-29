@@ -15,7 +15,7 @@ public class TestCommandReceiver implements CommandReceiver {
     }
 
     @Override
-    public void setListener(CommandListener listener) {
+    public void setHandler(CommandHandler listener) {
 
     }
 }

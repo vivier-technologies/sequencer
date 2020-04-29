@@ -2,7 +2,7 @@ package com.vivier_technologies.sequencer.commandreceiver;
 
 import com.vivier_technologies.commands.ByteBufferCommand;
 import com.vivier_technologies.common.mux.Multiplexer;
-import com.vivier_technologies.common.mux.MultiplexerListener;
+import com.vivier_technologies.common.mux.MultiplexerHandler;
 import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
 import com.vivier_technologies.utils.MulticastUtils;
@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
-public class MulticastCommandReceiver implements CommandReceiver, MultiplexerListener {
+public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHandler {
     private static final byte[] _componentName = Logger.generateLoggingKey("CMDRECEIVER");
 
     private final String _multicastAddress;
@@ -31,7 +31,7 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
     private final ByteBuffer _buffer;
 
     private DatagramChannel _channel;
-    private CommandListener _listener;
+    private CommandHandler _listener;
 
     @Inject
     public MulticastCommandReceiver(Logger logger, Multiplexer mux, Configuration configuration) {
@@ -67,7 +67,7 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerLis
     }
 
     @Override
-    public void setListener(CommandListener listener) {
+    public void setHandler(CommandHandler listener) {
         _listener = listener;
     }
 

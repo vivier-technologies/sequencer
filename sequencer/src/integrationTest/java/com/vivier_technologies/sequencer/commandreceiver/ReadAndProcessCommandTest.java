@@ -16,8 +16,8 @@ public class ReadAndProcessCommandTest {
         mux.open();
         MulticastCommandReceiver receiver = new MulticastCommandReceiver(null, mux,
                 "127.0.0.1", "239.0.0.0", 4000, true, 8192, 1472);
-        CommandListener listener = Mockito.mock(CommandListener.class);
-        receiver.setListener(listener);
+        CommandHandler listener = Mockito.mock(CommandHandler.class);
+        receiver.setHandler(listener);
         receiver.open();
         receiver.onRead();
         ArgumentCaptor<ByteBufferCommand> argumentCaptor = ArgumentCaptor.forClass(ByteBufferCommand.class);

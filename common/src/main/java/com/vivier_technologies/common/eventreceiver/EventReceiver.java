@@ -8,5 +8,5 @@ public interface EventReceiver {
 
     void close();
 
-    void setListener(EventListener listener);
+    void setHandler(EventHandler handler);
 }

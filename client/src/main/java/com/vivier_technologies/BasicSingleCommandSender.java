@@ -3,7 +3,7 @@ package com.vivier_technologies;
 import com.vivier_technologies.commands.ByteBufferCommand;
 import com.vivier_technologies.commands.Command;
 import com.vivier_technologies.commands.CommandHeader;
-import com.vivier_technologies.common.eventreceiver.EventListener;
+import com.vivier_technologies.common.eventreceiver.EventHandler;
 import com.vivier_technologies.common.eventreceiver.MulticastEventReceiver;
 import com.vivier_technologies.common.mux.Multiplexer;
 import com.vivier_technologies.common.mux.StandardJVMMultiplexer;
@@ -19,7 +19,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.util.Arrays;
 
-public class BasicSingleCommandSender implements EventListener {
+public class BasicSingleCommandSender implements EventHandler {
     public static byte[] _componentName = Logger.generateLoggingKey("CMDSENDER");
 
     private final String _multicastAddress;
@@ -52,7 +52,7 @@ public class BasicSingleCommandSender implements EventListener {
         _mux = new StandardJVMMultiplexer(logger);
 
         _eventReceiver = new MulticastEventReceiver(logger, _mux, configuration);
-        _eventReceiver.setListener(this);
+        _eventReceiver.setHandler(this);
 
         _buffer = ByteBufferFactory.nativeAllocate(1024);
         _command = new ByteBufferCommand(_buffer);

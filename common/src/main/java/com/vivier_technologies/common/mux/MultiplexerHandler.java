@@ -1,6 +1,6 @@
 package com.vivier_technologies.common.mux;
 
-public interface MultiplexerListener {
+public interface MultiplexerHandler {
 
     void onConnect();
 

@@ -1,16 +1,16 @@
 package com.vivier_technologies.sequencer;
 
 import com.vivier_technologies.commands.Command;
-import com.vivier_technologies.common.admin.AdminListener;
+import com.vivier_technologies.common.admin.AdminHandler;
 import com.vivier_technologies.common.admin.AdminReceiver;
 import com.vivier_technologies.common.admin.Status;
 import com.vivier_technologies.common.admin.StatusEmitter;
-import com.vivier_technologies.common.eventreceiver.EventListener;
+import com.vivier_technologies.common.eventreceiver.EventHandler;
 import com.vivier_technologies.common.eventreceiver.EventReceiver;
 import com.vivier_technologies.common.mux.Multiplexer;
 import com.vivier_technologies.events.Event;
 import com.vivier_technologies.events.EventHeader;
-import com.vivier_technologies.sequencer.commandreceiver.CommandListener;
+import com.vivier_technologies.sequencer.commandreceiver.CommandHandler;
 import com.vivier_technologies.sequencer.commandreceiver.CommandReceiver;
 import com.vivier_technologies.sequencer.emitter.EventEmitter;
 import com.vivier_technologies.sequencer.eventstore.EventStore;
@@ -23,7 +23,7 @@ import org.apache.commons.configuration2.Configuration;
 import javax.inject.Inject;
 import java.io.IOException;
 
-public class Sequencer implements CommandListener, EventListener, AdminListener, Status {
+public class Sequencer implements CommandHandler, EventHandler, AdminHandler, Status {
 
     private static final byte[] _componentName = Logger.generateLoggingKey("SEQUENCER");
 
@@ -50,6 +50,9 @@ public class Sequencer implements CommandListener, EventListener, AdminListener,
                      AdminReceiver adminReceiver) {
 
         String source = configuration.getString("source");
+        if(source == null)
+            throw new IllegalArgumentException("No source name set on sequencer");
+
         ByteArrayUtils.copyAndPadRightWithSpaces(source.getBytes(), _source, 0, _source.length);
 
         _logger = logger;
@@ -63,8 +66,9 @@ public class Sequencer implements CommandListener, EventListener, AdminListener,
         _statusEmitter = statusEmitter;
         _adminReceiver = adminReceiver;
 
-        _commandReceiver.setListener(this);
-        _eventReceiver.setListener(this);
+        _adminReceiver.setHandler(this);
+        _commandReceiver.setHandler(this);
+        _eventReceiver.setHandler(this);
     }
 
     public CommandProcessor getProcessor() {
@@ -162,6 +166,11 @@ public class Sequencer implements CommandListener, EventListener, AdminListener,
             // TODO send end of stream out
         }
         stop();
+    }
+
+    @Override
+    public void onStatusRequest() {
+        //_statusEmitter
     }
 
     @Override

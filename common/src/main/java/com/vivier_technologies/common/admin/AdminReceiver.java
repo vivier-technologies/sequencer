@@ -8,5 +8,5 @@ public interface AdminReceiver {
 
     void close();
 
-    void setListener(AdminListener listener);
+    void setHandler(AdminHandler handler);
 }

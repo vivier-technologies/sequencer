@@ -47,16 +47,16 @@ public class StandardJVMMultiplexer implements Multiplexer, Scheduler {
                 Iterator<SelectionKey> iterator = _selector.selectedKeys().iterator();
                 iterator.forEachRemaining(key -> {
                     if(key.isAcceptable()) {
-                        ((MultiplexerListener)key.attachment()).onAccept();
+                        ((MultiplexerHandler)key.attachment()).onAccept();
 
                     } else if (key.isConnectable()) {
-                        ((MultiplexerListener)key.attachment()).onConnect();
+                        ((MultiplexerHandler)key.attachment()).onConnect();
 
                     } else if (key.isReadable()) {
-                        ((MultiplexerListener)key.attachment()).onRead();
+                        ((MultiplexerHandler)key.attachment()).onRead();
 
                     } else if (key.isWritable()) {
-                        ((MultiplexerListener)key.attachment()).onWrite();
+                        ((MultiplexerHandler)key.attachment()).onWrite();
                     }
 
                     iterator.remove();
@@ -77,7 +77,7 @@ public class StandardJVMMultiplexer implements Multiplexer, Scheduler {
     }
 
     @Override
-    public void register(AbstractSelectableChannel channel, int ops, MultiplexerListener handler)
+    public void register(AbstractSelectableChannel channel, int ops, MultiplexerHandler handler)
             throws ClosedChannelException {
         channel.register(_selector, ops, handler);
     }

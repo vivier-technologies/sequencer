@@ -1,8 +1,9 @@
 package com.vivier_technologies.common.admin;
 
+import com.vivier_technologies.admin.ByteBufferCommand;
+import com.vivier_technologies.admin.Command;
 import com.vivier_technologies.common.mux.Multiplexer;
-import com.vivier_technologies.common.mux.MultiplexerListener;
-import com.vivier_technologies.events.ByteBufferEvent;
+import com.vivier_technologies.common.mux.MultiplexerHandler;
 import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
 import com.vivier_technologies.utils.MulticastUtils;
@@ -14,7 +15,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
-public class MulticastAdminReceiver implements AdminReceiver, MultiplexerListener {
+public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler {
 
     private static final byte[] _componentName = Logger.generateLoggingKey("ADMINRECEIVER");
 
@@ -26,13 +27,14 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerListene
     private final int _maxCommandSize;
 
     private final Multiplexer _mux;
-    private final ByteBufferEvent _event;
+
+    private final ByteBufferCommand _adminCommand;
 
     private final Logger _logger;
     private final ByteBuffer _buffer;
 
     private DatagramChannel _channel;
-    private AdminListener _listener;
+    private AdminHandler _listener;
 
     @Inject
     public MulticastAdminReceiver(Logger logger, Multiplexer mux, Configuration configuration) {
@@ -64,7 +66,7 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerListene
         //TODO consider whether to allocate direct or not here..
         _buffer = ByteBufferFactory.nativeAllocateDirect(_maxCommandSize);
 
-        _event = new ByteBufferEvent();
+        _adminCommand = new ByteBufferCommand();
     }
 
     @Override
@@ -92,10 +94,13 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerListene
             _buffer.clear();
             _channel.receive(_buffer);
             _buffer.flip();
-            _event.setData(_buffer);
-            // deliberately missing a check for whether the listener is set given this is on the critical
-            // processing path...
-            _listener.(_event);
+            // need to check whether this message is for me i.e. instance matches
+            _adminCommand.setData(_buffer);
+            switch(_adminCommand.getType()) {
+                case Command.Type.GO_ACTIVE -> _listener.onGoActive();
+                case Command.Type.GO_PASSIVE -> _listener.onGoPassive();
+                case Command.Type.STATUS -> _listener.onStatusRequest();
+            }
         } catch (IOException e) {
             _logger.error(_componentName, "Unable to read from channel into buffer");
         }
@@ -119,7 +124,7 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerListene
     }
 
     @Override
-    public void setListener(AdminListener listener) {
+    public void setHandler(AdminHandler listener) {
         _listener = listener;
     }
 }

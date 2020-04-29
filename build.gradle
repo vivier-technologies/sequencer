@@ -13,6 +13,7 @@ allprojects {
 subprojects {
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
+    apply plugin: 'java-test-fixtures'
 
     group = 'com.vivier_technologies'
     version = '0.1.0'
@@ -103,7 +104,7 @@ project(':sequencer') {
     dependencies {
         implementation project(':common'), project(':utils'), project(':messages')
 
-        testImplementation project(':common')
+        testImplementation testFixtures(project(':common'))
 
         integrationTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
         integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
