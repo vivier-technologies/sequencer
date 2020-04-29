@@ -52,7 +52,7 @@ public class SequencerTest {
             @Provides
             Configuration provideConfiguration() {
                 Configuration mock = Mockito.mock(Configuration.class);
-                mock.addProperty("source", "test");
+                Mockito.when(mock.getString("source")).thenReturn("test");
                 return mock;
             }
         });
