@@ -7,8 +7,8 @@ import java.io.IOException;
 public class TestEventEmitter implements EventEmitter {
 
     @Override
-    public boolean send(Event event) throws IOException {
-        return false;
+    public void send(Event event) throws IOException {
+
     }
 
     @Override

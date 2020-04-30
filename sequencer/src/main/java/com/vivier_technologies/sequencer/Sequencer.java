@@ -3,8 +3,8 @@ package com.vivier_technologies.sequencer;
 import com.vivier_technologies.commands.Command;
 import com.vivier_technologies.common.admin.AdminHandler;
 import com.vivier_technologies.common.admin.AdminReceiver;
-import com.vivier_technologies.common.admin.Status;
 import com.vivier_technologies.common.admin.StatusEmitter;
+import com.vivier_technologies.common.admin.StatusHandler;
 import com.vivier_technologies.common.eventreceiver.EventHandler;
 import com.vivier_technologies.common.eventreceiver.EventReceiver;
 import com.vivier_technologies.common.mux.Multiplexer;
@@ -23,7 +23,7 @@ import org.apache.commons.configuration2.Configuration;
 import javax.inject.Inject;
 import java.io.IOException;
 
-public class Sequencer implements CommandHandler, EventHandler, AdminHandler, Status {
+public class Sequencer implements CommandHandler, EventHandler, AdminHandler, StatusHandler {
 
     private static final byte[] _componentName = Logger.generateLoggingKey("SEQUENCER");
 
@@ -86,10 +86,6 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler, St
             _eventStore.open();
             _statusEmitter.open();
 
-            /////TEMP//////
-            onGoActive();
-            ///////////////
-
             _mux.run();
         } catch (IOException e) {
             _logger.error(_componentName, "Unable to start as cannot open dependent modules");
@@ -117,7 +113,7 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler, St
         try {
             _eventEmitter.send(e);
         } catch (IOException ioException) {
-            _logger.error(_componentName, "Unable to send event for command - clients will request replay from sequencer");
+            _logger.error(_componentName, "Unable to send event for command - clients will request replay from sequencer when they realise");
         }
     }
 
@@ -128,7 +124,6 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler, St
         // will still be preferred source
         // TODO consider what to do when can't store...
         _eventStore.store(e);
-        // not sending out because only the command receiver that is active does that
     }
 
     @Override
@@ -170,7 +165,7 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler, St
 
     @Override
     public void onStatusRequest() {
-        //_statusEmitter
+        // TODO send out status via emitter
     }
 
     @Override

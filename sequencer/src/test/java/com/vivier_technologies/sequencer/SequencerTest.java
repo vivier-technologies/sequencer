@@ -24,6 +24,8 @@ import com.vivier_technologies.sequencer.replay.EventReplay;
 import com.vivier_technologies.sequencer.replay.MulticastEventReplay;
 import com.vivier_technologies.utils.ConsoleLogger;
 import com.vivier_technologies.utils.Logger;
+import com.vivier_technologies.utils.MulticastChannelCreator;
+import com.vivier_technologies.utils.MulticastTestChannelCreator;
 import org.apache.commons.configuration2.Configuration;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -47,6 +49,7 @@ public class SequencerTest {
                 bind(EventReplay.class).to(MulticastEventReplay.class);
                 bind(StatusEmitter.class).to(TestStatusEmitter.class);
                 bind(AdminReceiver.class).to(TestAdminReceiver.class);
+                bind(MulticastChannelCreator.class).to(MulticastTestChannelCreator.class);
             }
 
             @Provides

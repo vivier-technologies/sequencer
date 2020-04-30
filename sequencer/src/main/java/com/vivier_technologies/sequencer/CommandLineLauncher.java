@@ -21,9 +21,7 @@ import com.vivier_technologies.sequencer.eventstore.InMemoryEventStore;
 import com.vivier_technologies.sequencer.processor.CommandProcessor;
 import com.vivier_technologies.sequencer.replay.EventReplay;
 import com.vivier_technologies.sequencer.replay.MulticastEventReplay;
-import com.vivier_technologies.utils.ConfigReader;
-import com.vivier_technologies.utils.ConsoleLogger;
-import com.vivier_technologies.utils.Logger;
+import com.vivier_technologies.utils.*;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
@@ -60,6 +58,7 @@ public class CommandLineLauncher {
 
                         bind(EventStore.class).to(InMemoryEventStore.class).asEagerSingleton();
                         bind(Multiplexer.class).to(StandardJVMMultiplexer.class).asEagerSingleton();
+                        bind(MulticastChannelCreator.class).to(MulticastNetworkChannelCreator.class).asEagerSingleton();
 
                         bind(EventEmitter.class).to(MulticastEventEmitter.class);
                         bind(CommandReceiver.class).to(MulticastCommandReceiver.class);

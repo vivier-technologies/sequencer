@@ -34,6 +34,7 @@ public class BasicSingleCommandSender implements EventHandler {
     private final ByteBuffer _buffer;
     private final ByteBufferCommand _command;
     private final Logger _logger;
+    private final MulticastChannelCreator _channelCreator;
 
     private DatagramChannel _channel;
     private SocketAddress _multicastAddressSocket;
@@ -50,8 +51,8 @@ public class BasicSingleCommandSender implements EventHandler {
         _logger = logger;
 
         _mux = new StandardJVMMultiplexer(logger);
-
-        _eventReceiver = new MulticastEventReceiver(logger, _mux, configuration);
+        _channelCreator = new MulticastNetworkChannelCreator();
+        _eventReceiver = new MulticastEventReceiver(logger, _mux, configuration, _channelCreator);
         _eventReceiver.setHandler(this);
 
         _buffer = ByteBufferFactory.nativeAllocate(1024);
@@ -74,7 +75,7 @@ public class BasicSingleCommandSender implements EventHandler {
 
     public final void open() throws IOException {
         InetAddress multicastAddress = InetAddress.getByName(_multicastAddress);
-        _channel = MulticastUtils.setupSendChannel(_ip, multicastAddress, _multicastPort, _multicastLoopback, _sendBufferSize);
+        _channel = _channelCreator.setupSendChannel(_ip, multicastAddress, _multicastPort, _multicastLoopback, _sendBufferSize);
         _multicastAddressSocket = new InetSocketAddress(multicastAddress, _multicastPort);
 
         _mux.open();

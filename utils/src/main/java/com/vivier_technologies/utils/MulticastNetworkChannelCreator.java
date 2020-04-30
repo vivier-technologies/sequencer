@@ -4,16 +4,17 @@ import java.io.IOException;
 import java.net.*;
 import java.nio.channels.DatagramChannel;
 
-public class MulticastUtils {
+public class MulticastNetworkChannelCreator implements MulticastChannelCreator {
 
     private static final int NETWORK_HEADERS = 8+20; // UDP and IP respectively
 
-    public static DatagramChannel setupReceiveChannel(String ip, String multicastAddress, int multicastPort,
-                                                      boolean multicastLoopback, int receiveBufferSize,
-                                                      int maxCommandSize) throws IOException {
+    @Override
+    public final DatagramChannel setupReceiveChannel(String ip, String multicastAddress, int multicastPort,
+                                               boolean multicastLoopback, int receiveBufferSize,
+                                               int maxCommandSize) throws IOException {
 
         NetworkInterface nif = NetworkInterface.getByInetAddress(InetAddress.getByName(ip));
-        if(maxCommandSize > nif.getMTU() - NETWORK_HEADERS)
+        if(maxCommandSize > nif.getMTU() - MulticastNetworkChannelCreator.NETWORK_HEADERS)
             throw new IllegalArgumentException("Max message size set too large for MTU");
 
         DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
@@ -29,9 +30,11 @@ public class MulticastUtils {
 
         return channel;
     }
-    
-    public static DatagramChannel setupSendChannel(String ip, InetAddress multicastAddress, int multicastPort,
-                                                   boolean multicastLoopback, int sendBufferSize) throws IOException {
+
+    @Override
+    public final DatagramChannel setupSendChannel(String ip, InetAddress multicastAddress, int multicastPort,
+                                            boolean multicastLoopback, int sendBufferSize) throws IOException {
+
         DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
         channel.configureBlocking(false);
         NetworkInterface nif = NetworkInterface.getByInetAddress(InetAddress.getByName(ip));
@@ -40,6 +43,8 @@ public class MulticastUtils {
         channel.setOption(StandardSocketOptions.SO_SNDBUF, sendBufferSize);
         channel.bind(null); // select any local address
         channel.join(multicastAddress, nif);
+
         return channel;
     }
+
 }

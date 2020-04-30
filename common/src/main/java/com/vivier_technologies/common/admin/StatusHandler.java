@@ -1,6 +1,6 @@
 package com.vivier_technologies.common.admin;
 
-public interface Status {
+public interface StatusHandler {
 
     boolean isActive();
 }

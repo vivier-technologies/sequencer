@@ -105,6 +105,7 @@ project(':sequencer') {
         implementation project(':common'), project(':utils'), project(':messages')
 
         testImplementation testFixtures(project(':common'))
+        testImplementation testFixtures(project(':utils'))
 
         integrationTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
         integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
@@ -140,5 +141,7 @@ project(':repeater') {
 project(':common') {
     dependencies {
         implementation project(':utils'), project(':messages')
+
+        testFixturesImplementation project(':messages')
     }
 }

@@ -5,7 +5,7 @@ import com.vivier_technologies.common.mux.MultiplexerHandler;
 import com.vivier_technologies.events.ByteBufferEvent;
 import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
-import com.vivier_technologies.utils.MulticastUtils;
+import com.vivier_technologies.utils.MulticastChannelCreator;
 import org.apache.commons.configuration2.Configuration;
 
 import javax.inject.Inject;
@@ -27,18 +27,20 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerHandler
 
     private final Multiplexer _mux;
     private final ByteBufferEvent _event;
-
     private final Logger _logger;
     private final ByteBuffer _buffer;
+    private final MulticastChannelCreator _channelCreator;
 
     private DatagramChannel _channel;
     private EventHandler _listener;
 
     @Inject
-    public MulticastEventReceiver(Logger logger, Multiplexer mux, Configuration configuration) {
+    public MulticastEventReceiver(Logger logger, Multiplexer mux, Configuration configuration,
+                                  MulticastChannelCreator channelCreator) {
 
         this(logger,
                 mux,
+                channelCreator,
                 configuration.getString("sequencer.event.receiver.ip"),
                 configuration.getString("sequencer.event.receiver.multicast.ip"),
                 configuration.getInt("sequencer.event.receiver.multicast.port"),
@@ -48,7 +50,7 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerHandler
 
     }
 
-    public MulticastEventReceiver(Logger logger, Multiplexer mux,
+    public MulticastEventReceiver(Logger logger, Multiplexer mux, MulticastChannelCreator channelCreator,
                                     String ip, String multicastAddress, int multicastPort,
                                     boolean multicastLoopback, int receiveBufferSize, int maxCommandSize) {
         _ip = ip;
@@ -60,6 +62,7 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerHandler
 
         _logger = logger;
         _mux = mux;
+        _channelCreator = channelCreator;
 
         //TODO consider whether to allocate direct or not here..
         _buffer = ByteBufferFactory.nativeAllocateDirect(_maxCommandSize);
@@ -74,7 +77,7 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerHandler
 
     @Override
     public final void open() throws IOException {
-        _channel = MulticastUtils.setupReceiveChannel(_ip, _multicastAddress, _multicastPort, _multicastLoopback,
+        _channel = _channelCreator.setupReceiveChannel(_ip, _multicastAddress, _multicastPort, _multicastLoopback,
                 _receiveBufferSize, _maxCommandSize);
 
         _mux.register(_channel, SelectionKey.OP_READ, this);

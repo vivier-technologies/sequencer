@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public interface EventEmitter {
 
-    boolean send(Event event) throws IOException;
+    void send(Event event) throws IOException;
 
     void open() throws IOException;
 

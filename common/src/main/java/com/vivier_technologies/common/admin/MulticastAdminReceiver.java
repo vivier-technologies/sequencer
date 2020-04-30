@@ -6,7 +6,7 @@ import com.vivier_technologies.common.mux.Multiplexer;
 import com.vivier_technologies.common.mux.MultiplexerHandler;
 import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
-import com.vivier_technologies.utils.MulticastUtils;
+import com.vivier_technologies.utils.MulticastChannelCreator;
 import org.apache.commons.configuration2.Configuration;
 
 import javax.inject.Inject;
@@ -27,7 +27,7 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler
     private final int _maxCommandSize;
 
     private final Multiplexer _mux;
-
+    private final MulticastChannelCreator _channelCreator;
     private final ByteBufferCommand _adminCommand;
 
     private final Logger _logger;
@@ -37,10 +37,12 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler
     private AdminHandler _listener;
 
     @Inject
-    public MulticastAdminReceiver(Logger logger, Multiplexer mux, Configuration configuration) {
+    public MulticastAdminReceiver(Logger logger, Multiplexer mux, Configuration configuration,
+                                  MulticastChannelCreator channelCreator) {
 
         this(logger,
                 mux,
+                channelCreator,
                 configuration.getString("sequencer.admin.receiver.ip"),
                 configuration.getString("sequencer.admin.receiver.multicast.ip"),
                 configuration.getInt("sequencer.admin.receiver.multicast.port"),
@@ -50,7 +52,7 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler
 
     }
 
-    public MulticastAdminReceiver(Logger logger, Multiplexer mux,
+    public MulticastAdminReceiver(Logger logger, Multiplexer mux, MulticastChannelCreator channelCreator,
                                   String ip, String multicastAddress, int multicastPort,
                                   boolean multicastLoopback, int receiveBufferSize, int maxCommandSize) {
         _ip = ip;
@@ -62,6 +64,7 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler
 
         _logger = logger;
         _mux = mux;
+        _channelCreator = channelCreator;
 
         //TODO consider whether to allocate direct or not here..
         _buffer = ByteBufferFactory.nativeAllocateDirect(_maxCommandSize);
@@ -71,7 +74,7 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler
 
     @Override
     public final void open() throws IOException {
-        _channel = MulticastUtils.setupReceiveChannel(_ip, _multicastAddress, _multicastPort, _multicastLoopback,
+        _channel = _channelCreator.setupReceiveChannel(_ip, _multicastAddress, _multicastPort, _multicastLoopback,
                 _receiveBufferSize, _maxCommandSize);
 
         _mux.register(_channel, SelectionKey.OP_READ, this);
@@ -94,17 +97,18 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler
             _buffer.clear();
             _channel.receive(_buffer);
             _buffer.flip();
-            // need to check whether this message is for me i.e. instance matches
+
+            // TODO CRITICAL need to check whether this message is for me i.e. instance matches or wildcard
             _adminCommand.setData(_buffer);
             switch(_adminCommand.getType()) {
                 case Command.Type.GO_ACTIVE -> _listener.onGoActive();
                 case Command.Type.GO_PASSIVE -> _listener.onGoPassive();
                 case Command.Type.STATUS -> _listener.onStatusRequest();
+                case Command.Type.SHUTDOWN -> _listener.onShutdown();
             }
         } catch (IOException e) {
             _logger.error(_componentName, "Unable to read from channel into buffer");
         }
-
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.vivier_technologies.common.mux.Multiplexer;
 import com.vivier_technologies.common.mux.MultiplexerHandler;
 import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
-import com.vivier_technologies.utils.MulticastUtils;
+import com.vivier_technologies.utils.MulticastChannelCreator;
 import org.apache.commons.configuration2.Configuration;
 
 import javax.inject.Inject;
@@ -26,6 +26,7 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHan
 
     private final Multiplexer _mux;
     private final ByteBufferCommand _command;
+    private final MulticastChannelCreator _channelCreator;
 
     private final Logger _logger;
     private final ByteBuffer _buffer;
@@ -34,10 +35,12 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHan
     private CommandHandler _listener;
 
     @Inject
-    public MulticastCommandReceiver(Logger logger, Multiplexer mux, Configuration configuration) {
+    public MulticastCommandReceiver(Logger logger, Multiplexer mux, Configuration configuration,
+                                    MulticastChannelCreator channelCreator) {
 
         this(logger,
                 mux,
+                channelCreator,
                 configuration.getString("sequencer.command.receiver.ip"),
                 configuration.getString("sequencer.command.receiver.multicast.ip"),
                 configuration.getInt("sequencer.command.receiver.multicast.port"),
@@ -47,7 +50,7 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHan
 
     }
 
-    public MulticastCommandReceiver(Logger logger, Multiplexer mux,
+    public MulticastCommandReceiver(Logger logger, Multiplexer mux, MulticastChannelCreator channelCreator,
                                     String ip, String multicastAddress, int multicastPort,
                                     boolean multicastLoopback, int receiveBufferSize, int maxCommandSize) {
         _ip = ip;
@@ -59,6 +62,7 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHan
 
         _logger = logger;
         _mux = mux;
+        _channelCreator = channelCreator;
 
         //TODO consider whether to allocate direct or not here..
         _buffer = ByteBufferFactory.nativeAllocateDirect(_maxCommandSize);
@@ -73,7 +77,7 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHan
 
     @Override
     public final void open() throws IOException {
-        _channel = MulticastUtils.setupReceiveChannel(_ip, _multicastAddress, _multicastPort, _multicastLoopback,
+        _channel = _channelCreator.setupReceiveChannel(_ip, _multicastAddress, _multicastPort, _multicastLoopback,
                 _receiveBufferSize, _maxCommandSize);
 
         _mux.register(_channel, SelectionKey.OP_READ, this);
