@@ -7,22 +7,19 @@ allprojects {
     repositories {
         mavenCentral()
     }
+
 }
 
 subprojects {
     apply plugin: 'java-library'
-    apply plugin: 'org.unbroken-dome.test-sets'
     apply plugin: 'maven-publish'
+    apply plugin: 'java-test-fixtures'
 
     group = 'com.vivier_technologies'
     version = '0.1.0'
 
     test {
         useJUnitPlatform()
-    }
-
-    testSets {
-        integrationTest
     }
 
     dependencies {
@@ -34,14 +31,12 @@ subprojects {
         implementation 'org.apache.commons:commons-configuration2:2.7'
         implementation 'commons-beanutils:commons-beanutils:1.9.4'
         implementation 'commons-cli:commons-cli:20040117.000000'
+        implementation 'it.unimi.dsi:fastutil:8.3.1'
 
         // Use JUnit test framework
         testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
         testImplementation 'org.mockito:mockito-core:3.3.3'
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
-
-        integrationTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
-        integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
     }
 
     jar {
@@ -49,14 +44,6 @@ subprojects {
             attributes('Implementation-Title': project.name, 'Implementation-Version': project.version)
         }
     }
-
-    check.dependsOn integrationTest
-    integrationTest.mustRunAfter test
-
-    //ensures integration test always run even when not changed
-    //project.integrationTest {
-    //    outputs.upToDateWhen { false }
-    //}
 
     publishing {
         publications {
@@ -103,8 +90,33 @@ subprojects {
 }
 
 project(':sequencer') {
+
+    apply plugin: 'org.unbroken-dome.test-sets'
+
+    testSets {
+        integrationTest
+    }
+
+    integrationTest {
+        useJUnitPlatform()
+    }
+
     dependencies {
-        implementation project(':utils'), project(':messages')
+        implementation project(':common'), project(':utils'), project(':messages')
+
+        testImplementation testFixtures(project(':common'))
+        testImplementation testFixtures(project(':utils'))
+
+        integrationTestImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
+        integrationTestRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+    }
+
+    check.dependsOn integrationTest
+    integrationTest.mustRunAfter test
+
+    //ensures integration test always run even when not changed
+    project.integrationTest {
+        outputs.upToDateWhen { false }
     }
 }
 
@@ -116,7 +128,20 @@ project(':messages') {
 
 project(':client') {
     dependencies {
-        implementation project(':utils'), project(':messages')
+        implementation project(':common'), project(':utils'), project(':messages')
     }
 }
 
+project(':repeater') {
+    dependencies {
+        implementation project(':common')
+    }
+}
+
+project(':common') {
+    dependencies {
+        implementation project(':utils'), project(':messages')
+
+        testFixturesImplementation project(':messages')
+    }
+}

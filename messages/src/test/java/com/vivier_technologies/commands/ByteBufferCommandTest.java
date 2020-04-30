@@ -43,4 +43,18 @@ class ByteBufferCommandTest {
                 command.getHeader().getLength() - Command.CMD_BODY_START));
     }
 
+    @Test
+    public void testHeaderSet() {
+        ByteBuffer buffer = ByteBufferFactory.nativeAllocate(1024);
+        ByteBufferCommand command = new ByteBufferCommand(buffer);
+        byte[] body = "TESTTHISWORKS".getBytes();
+        byte[] src = "TESTTEST".getBytes();
+        command.getData().put(Command.CMD_BODY_START, body);
+        command.getHeader().setHeader(Command.CMD_BODY_START + body.length, (short)1, src, 1);
+        assertEquals(Command.CMD_BODY_START + body.length, command.getHeader().getLength());
+        assertEquals(1, command.getHeader().getType());
+        assertEquals(new String(src), new String(command.getHeader().getSource()));
+        assertEquals(1, command.getHeader().getSequence());
+    }
+
 }

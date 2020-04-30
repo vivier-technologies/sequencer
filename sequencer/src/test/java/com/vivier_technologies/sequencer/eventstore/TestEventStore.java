@@ -25,4 +25,9 @@ public class TestEventStore implements EventStore {
     public void close() {
 
     }
+
+    @Override
+    public boolean isEmpty() {
+        return true;
+    }
 }

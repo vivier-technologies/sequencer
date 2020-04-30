@@ -21,4 +21,9 @@ public class TestCommandProcessor implements CommandProcessor {
     public String getName() {
         return "Test";
     }
+
+    @Override
+    public Event process(Event event) {
+        return null;
+    }
 }

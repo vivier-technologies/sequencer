@@ -8,6 +8,10 @@ import java.nio.ByteBuffer;
  * Will exhibit reasonable performance but need another implementation to go faster
  *
  * Methods marked as final for inlining
+ *
+ * No checking is deliberate - could think about adding checks based on system property later..
+ *
+ * Intended to be run single threaded so not worrying about padding to avoid false sharing etc
  */
 public class ByteBufferCommandHeader implements CommandHeader {
     private ByteBuffer _buffer;
@@ -16,6 +20,14 @@ public class ByteBufferCommandHeader implements CommandHeader {
     public final CommandHeader setData(ByteBuffer buffer) {
         _buffer = buffer;
         return this;
+    }
+
+    @Override
+    public void setHeader(int length, short type, byte[] src, int sequence) {
+        _buffer.putInt(CommandHeader.CMD_LEN, length);
+        _buffer.putShort(CommandHeader.TYPE, type);
+        _buffer.put(CommandHeader.SRC, src);
+        _buffer.putInt(CommandHeader.CMD_SEQ, sequence);
     }
 
     @Override
