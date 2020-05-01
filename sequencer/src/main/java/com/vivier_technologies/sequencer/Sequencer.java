@@ -4,7 +4,6 @@ import com.vivier_technologies.commands.Command;
 import com.vivier_technologies.common.admin.AdminHandler;
 import com.vivier_technologies.common.admin.AdminReceiver;
 import com.vivier_technologies.common.admin.StatusEmitter;
-import com.vivier_technologies.common.admin.StatusHandler;
 import com.vivier_technologies.common.eventreceiver.EventHandler;
 import com.vivier_technologies.common.eventreceiver.EventReceiver;
 import com.vivier_technologies.common.mux.Multiplexer;
@@ -23,7 +22,7 @@ import org.apache.commons.configuration2.Configuration;
 import javax.inject.Inject;
 import java.io.IOException;
 
-public class Sequencer implements CommandHandler, EventHandler, AdminHandler, StatusHandler {
+public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
 
     private static final byte[] _componentName = Logger.generateLoggingKey("SEQUENCER");
 
@@ -85,6 +84,7 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler, St
             _mux.open();
             _eventStore.open();
             _statusEmitter.open();
+            _adminReceiver.open();
 
             _mux.run();
         } catch (IOException e) {
@@ -95,12 +95,12 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler, St
     public void stop() {
         // close receiver first
         _commandReceiver.close();
-
         _eventReceiver.close();
         _replayer.close();
         _eventEmitter.close();
         _statusEmitter.close();
         _eventStore.close();
+        _adminReceiver.close();
 
         _mux.close();
     }
@@ -126,51 +126,63 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler, St
         _eventStore.store(e);
     }
 
+    // Very simple state active/passive so no need for state machine here thus far
+
     @Override
     public void onGoActive() {
-        try {
-            _commandReceiver.open();
-            _eventEmitter.open();
-            _active = true;
-            // TODO send out start of stream if its the start of the stream
-            if(_eventStore.isEmpty()) {
+        if(!_active) {
+            _logger.info(_componentName, "Going active");
+            try {
+                _commandReceiver.open();
+                _eventEmitter.open();
+                _active = true;
+                // TODO send out start of stream if its the start of the stream
+                if (_eventStore.isEmpty()) {
 
+                }
+                _logger.info(_componentName, "Gone active");
+            } catch (IOException e) {
+                _logger.error(_componentName, "Unable to go active as cannot open command receiver");
             }
-        } catch (IOException e) {
-            _logger.error(_componentName, "Unable to go active as cannot open command receiver");
+        } else {
+            _logger.info(_componentName, "Ignoring go active as not passive");
         }
     }
 
     @Override
     public void onGoPassive() {
-        try {
-            // start listening to events on assumption another sequencer is taking over
-            _eventReceiver.open();
-            // stop listening to commands
-            _commandReceiver.close();
-            _eventEmitter.close();
-            _active = false;
-        } catch (IOException e) {
-            _logger.error(_componentName, "Unable to go passive as cannot open event receiver");
+        if(_active) {
+            _logger.info(_componentName, "Going passive");
+            try {
+                // start listening to events on assumption another sequencer is taking over
+                _eventReceiver.open();
+                // stop listening to commands
+                _commandReceiver.close();
+                _eventEmitter.close();
+                _active = false;
+                _logger.info(_componentName, "Gone passive");
+            } catch (IOException e) {
+                _logger.error(_componentName, "Unable to go passive as cannot open event receiver");
+            }
+        } else {
+            _logger.info(_componentName, "Ignoring go passive as not active");
         }
     }
 
     @Override
     public void onShutdown() {
+        _logger.info(_componentName, "Shutting down");
         if(_active) {
             // TODO send end of stream out
         }
         stop();
+        _logger.info(_componentName, "Shutdown");
     }
 
     @Override
     public void onStatusRequest() {
         // TODO send out status via emitter
-    }
-
-    @Override
-    public boolean isActive() {
-        return _active;
+        _statusEmitter.sendStatus(_active);
     }
 }
 

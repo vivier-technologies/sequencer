@@ -10,18 +10,17 @@ import java.io.File;
 public class ConfigReader {
     private static final byte[] _loggingKey = Logger.generateLoggingKey("CONFIG_READ");
 
-    public static Configuration getConfig(Logger logger, String[] args) throws ParseException, ConfigurationException {
-        Options options = new Options();
+    public static CommandLine getCommandLine(Options options, Logger logger, String[] args) throws ParseException{
         //noinspection AccessStaticViaInstance
         options.addOption(OptionBuilder
-                .withArgName("type")
+                .withArgName("configtype")
                 .hasArg()
                 .withDescription("Whether to initialise using file based or url based config")
                 .isRequired()
                 .create("configtype"));
         //noinspection AccessStaticViaInstance
         options.addOption(OptionBuilder
-                .withArgName("name")
+                .withArgName("config")
                 .hasArg()
                 .withDescription("Either a url to the properties file or a config file")
                 .isRequired()
@@ -35,7 +34,11 @@ public class ConfigReader {
         for (Option option : commandLine.getOptions()) {
             logger.info(ConfigReader._loggingKey, option.getArgName(), "=", option.getValue());
         }
+        return commandLine;
+    }
 
+    public static Configuration getConfig(CommandLine commandLine, Logger logger, String[] args)
+            throws ParseException, ConfigurationException {
         Configuration config;
         // TODO add code to download from remote URL
         if (commandLine.getOptionValue("configtype").equalsIgnoreCase("file")) {
@@ -44,5 +47,17 @@ public class ConfigReader {
             throw new IllegalArgumentException("Only configtype option of file is supported at present");
         }
         return config;
+    }
+
+    public static Configuration getConfig(Options options, Logger logger, String[] args)
+            throws ParseException, ConfigurationException {
+
+        CommandLine commandLine = getCommandLine(options, logger, args);
+        return getConfig(commandLine, logger, args);
+    }
+
+    public static Configuration getConfig(Logger logger, String[] args) throws ParseException, ConfigurationException {
+        Options options = new Options();
+        return getConfig(options, logger, args);
     }
 }

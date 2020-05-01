@@ -1,6 +1,5 @@
 package com.vivier_technologies.common.admin;
 
-import com.vivier_technologies.admin.Status;
 import com.vivier_technologies.utils.Logger;
 import com.vivier_technologies.utils.MulticastChannelCreator;
 import org.apache.commons.configuration2.Configuration;
@@ -10,7 +9,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 public class MulticastStatusEmitter implements StatusEmitter {
@@ -33,11 +31,11 @@ public class MulticastStatusEmitter implements StatusEmitter {
     public MulticastStatusEmitter(Logger logger, Configuration configuration, MulticastChannelCreator channelCreator) {
         this(logger,
                 channelCreator,
-                configuration.getString("sequencer.admin.emitter.ip"),
-                configuration.getString("sequencer.admin.emitter.multicast.ip"),
-                configuration.getInt("sequencer.admin.emitter.multicast.port"),
+                configuration.getString("sequencer.status.emitter.ip"),
+                configuration.getString("sequencer.status.emitter.multicast.ip"),
+                configuration.getInt("sequencer.status.emitter.multicast.port"),
                 configuration.getBoolean("sequencer.loopback"),
-                configuration.getInt("sequencer.admin.emitter.osbuffersize"),
+                configuration.getInt("sequencer.status.emitter.osbuffersize"),
                 configuration.getInt("sequencer.maxmessagesize"));
     }
 
@@ -58,6 +56,7 @@ public class MulticastStatusEmitter implements StatusEmitter {
     public final void open() throws IOException {
         InetAddress multicastAddress = InetAddress.getByName(_multicastAddress);
         _channel = _channelCreator.setupSendChannel(_ip, multicastAddress, _multicastPort, _multicastLoopback, _sendBufferSize);
+        //_hostName = InetAddress.getByName(_ip).getHostName();
         _multicastAddressSocket = new InetSocketAddress(multicastAddress, _multicastPort);
     }
 
@@ -73,13 +72,10 @@ public class MulticastStatusEmitter implements StatusEmitter {
     }
 
     @Override
-    public final void sendStatus(Status s) throws IOException {
+    public final void sendStatus(boolean isActive) {
         // send a single event packet
-        ByteBuffer buffer = s.getData();
-        if(buffer.limit() > _maxEventSize) {
-            _logger.warn(_componentName, "Attempting to send event that is larger than maxmessagesize");
-        }
-        _channel.send(buffer, _multicastAddressSocket);
+
+        //_channel.send(_buffer, _multicastAddressSocket);
     }
 
 }

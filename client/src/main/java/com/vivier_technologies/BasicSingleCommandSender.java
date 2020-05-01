@@ -55,12 +55,12 @@ public class BasicSingleCommandSender implements EventHandler {
         _eventReceiver = new MulticastEventReceiver(logger, _mux, configuration, _channelCreator);
         _eventReceiver.setHandler(this);
 
-        _buffer = ByteBufferFactory.nativeAllocate(1024);
+        _buffer = ByteBufferFactory.nativeAllocate(_maxCommandSize);
         _command = new ByteBufferCommand(_buffer);
     }
 
 
-    public final boolean send(int cmdSeq, short type, byte[] body) throws IOException {
+    public final void send(int cmdSeq, short type, byte[] body) throws IOException {
         _buffer.clear();
         _buffer.put(Command.CMD_BODY_START, body);
         _command.getHeader().setHeader(Command.CMD_BODY_START + body.length, type, _source, cmdSeq);
@@ -70,7 +70,8 @@ public class BasicSingleCommandSender implements EventHandler {
         if(_buffer.limit() > _maxCommandSize) {
             _logger.warn(_componentName, "Attempting to send command that is larger than maxmessagesize");
         }
-        return _channel.send(_buffer, _multicastAddressSocket) != 0;
+        _logger.info(_componentName, "SENDING");
+        _channel.send(_buffer, _multicastAddressSocket);
     }
 
     public final void open() throws IOException {
@@ -111,9 +112,8 @@ public class BasicSingleCommandSender implements EventHandler {
         BasicSingleCommandSender sender = new BasicSingleCommandSender(logger, ConfigReader.getConfig(logger, args));
         sender.open();
 
-        if(sender.send(1, (short)1, "TESTTESTTEST".getBytes())) {
-            logger.info(BasicSingleCommandSender._componentName, "SENT");
-        }
+        sender.send(1, (short)1, "TESTTESTTEST".getBytes());
+
         sender.waitForEvent();
     }
 }
