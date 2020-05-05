@@ -105,7 +105,6 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler
             _channel.receive(_buffer);
             _buffer.flip();
 
-            // TODO CRITICAL need to check whether this message is for me i.e. instance matches or wildcard
             _adminCommand.setData(_buffer);
             byte[] instance = _adminCommand.getInstance();
             if (Arrays.equals(instance, _instanceName) || Arrays.equals(instance, Command.ALL_INSTANCES)) {
