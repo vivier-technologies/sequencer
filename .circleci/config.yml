@@ -34,7 +34,7 @@ jobs: # a collection of steps
             #GRADLE_ARGS=$(echo $CLASSNAMES | awk '{for (i=1; i<=NF; i++) print "--tests",$i}')
             #echo "Prepared arguments for Gradle: $GRADLE_ARGS"
             #./gradlew test $GRADLE_ARGS
-            ./gradlew build
+          ./gradlew build
       - save_cache:
           paths:
             - ~/.gradle/wrapper
@@ -46,14 +46,14 @@ jobs: # a collection of steps
       - run:
           name: Save test results
           command: |
-            mkdir -p ~/test-results/junit/
-            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/junit/ \;
+            mkdir -p ~/test-results/tests/
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/test-results/tests/ \;
           when: always
       - store_test_results:
           # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
-          path: build/test-results/test
+          path: ~/test-results
       - store_artifacts: # Upload test results for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
-          path: build/test-results/test
+          path: ~/test-results/tests
           when: always
       - run:
           name: Assemble JAR
