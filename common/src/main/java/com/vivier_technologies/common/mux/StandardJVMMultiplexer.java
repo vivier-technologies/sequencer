@@ -36,6 +36,7 @@ import java.util.Iterator;
  * Needs rework around selection keys to avoid this garbage down the track
  */
 public class StandardJVMMultiplexer implements Multiplexer, Scheduler {
+    private static final byte[] _loggingName = Logger.generateLoggingKey("MUX");
     private Selector _selector;
     private Logger _logger;
     private boolean _run = true;
@@ -53,6 +54,7 @@ public class StandardJVMMultiplexer implements Multiplexer, Scheduler {
 
     public void open() throws IOException {
         _selector = SelectorProvider.provider().openSelector();
+        _logger.info(_loggingName, "Using ", _selector.provider().getClass().getSimpleName());
     }
 
     public void run() throws IOException {
