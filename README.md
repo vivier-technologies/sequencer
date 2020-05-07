@@ -6,4 +6,4 @@
 
 To run the sequencer you need two command line properties -configtype <file|url> -config <.properties file path|url>
 
-Only file is currently supported and a sample properties file is included
+Only file is currently supported and a sample properties file is included within the config directory for running the necessary processes locally
