@@ -17,6 +17,8 @@
 
 package com.vivier_technologies.events;
 
+import com.vivier_technologies.utils.ByteArrayUtils;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -51,11 +53,7 @@ public class ByteBufferEventHeader implements EventHeader {
 
     @Override
     public final byte[] getSource() {
-        if(_buffer.hasArray())
-            // array copy much faster but only when backed by array i.e. on heap/non-direct
-            System.arraycopy(_buffer.array(), EventHeader.SRC, _src, 0, EventHeader.SRC_LEN);
-        else
-            _buffer.get(EventHeader.SRC, _src, 0, EventHeader.SRC_LEN);
+        ByteArrayUtils.copy(_buffer, EventHeader.SRC, _src, 0, EventHeader.SRC_LEN);
         return _src;
     }
 

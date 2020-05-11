@@ -27,6 +27,15 @@ import java.io.File;
 public class ConfigReader {
     private static final byte[] _loggingKey = Logger.generateLoggingKey("CONFIG_READ");
 
+    /**
+     * Process the command line passed in with set of custom options in addition to the standard ones
+     *
+     * @param options custom options object
+     * @param logger logger instance
+     * @param args args passed to main
+     * @return CommandLine object
+     * @throws ParseException if unable to parse
+     */
     public static CommandLine getCommandLine(Options options, Logger logger, String[] args) throws ParseException{
         //noinspection AccessStaticViaInstance
         options.addOption(OptionBuilder
@@ -54,8 +63,16 @@ public class ConfigReader {
         return commandLine;
     }
 
-    public static Configuration getConfig(CommandLine commandLine, Logger logger, String[] args)
-            throws ParseException, ConfigurationException {
+    /**
+     * Get configuration assuming you already have a parsed command line
+     *
+     * @param commandLine command line instance
+     * @param logger logger instance
+     * @param args args passed in
+     * @return Configuration object
+     * @throws ConfigurationException if configuration unable to be parsed
+     */
+    public static Configuration getConfig(CommandLine commandLine, Logger logger, String[] args) throws ConfigurationException {
         Configuration config;
         // TODO add code to download from remote URL
         if (commandLine.getOptionValue("configtype").equalsIgnoreCase("file")) {
@@ -66,6 +83,16 @@ public class ConfigReader {
         return config;
     }
 
+    /**
+     * Get configuration using custom options
+     *
+     * @param options custom options
+     * @param logger logger instance
+     * @param args args passed in
+     * @return Configuration object
+     * @throws ParseException if unable to parse command line
+     * @throws ConfigurationException if unable to parse configuration file
+     */
     public static Configuration getConfig(Options options, Logger logger, String[] args)
             throws ParseException, ConfigurationException {
 
@@ -73,6 +100,15 @@ public class ConfigReader {
         return getConfig(commandLine, logger, args);
     }
 
+    /**
+     * Get configuration using standard options
+     *
+     * @param logger logger instance
+     * @param args args passed in
+     * @return Configuration object
+     * @throws ParseException if unable to parse command line
+     * @throws ConfigurationException if configuration has errors
+     */
     public static Configuration getConfig(Logger logger, String[] args) throws ParseException, ConfigurationException {
         Options options = new Options();
         return getConfig(options, logger, args);

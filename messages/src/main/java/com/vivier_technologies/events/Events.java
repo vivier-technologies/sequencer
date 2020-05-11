@@ -17,8 +17,7 @@
 
 package com.vivier_technologies.events;
 
-/**
- * End of stream message - last message sent on the core sequencer component shutting down
- */
-public interface EndOfStream extends Event{
+public interface Events {
+    public static final short START_OF_STREAM = 0;
+    public static final short END_OF_STREAM = 1;
 }

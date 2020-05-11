@@ -17,7 +17,24 @@
 
 package com.vivier_technologies.commands;
 
+import com.vivier_technologies.utils.ByteArrayUtils;
+
 public interface CommandHeader {
+
+    /**
+     * Make sure source name fits within the size allotted - shouldn't be called on the critical path
+     * of any sensitive code
+     *
+     * @param s source name
+     * @return validated source as a byte array
+     */
+    static byte[] validateSource(String s) {
+        if(s.length() > SRC_LEN)
+            throw new IllegalArgumentException("Source is limited to 8 bytes");
+        byte[] source = new byte[SRC_LEN];
+        ByteArrayUtils.copyAndPadRightWithSpaces(s.getBytes(), source, 0, SRC_LEN);
+        return source;
+    }
 
     int CMD_LEN = 0;
     int TYPE = 4;

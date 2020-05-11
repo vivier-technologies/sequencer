@@ -23,10 +23,16 @@ import java.nio.ByteOrder;
 /**
  * Factory to ensure native byte order used when creating buffers
  * assumes of course that all machines running this are same architecture
- *
+ * but improves performance so worthy of that restriction
  */
 public class ByteBufferFactory {
 
+    /**
+     * Factory methods to reduce ability to make mistakes with buffer allocations not being in the appropriate ordering
+     *
+     * @param capacity the size of the buffer to return
+     * @return ByteBuffer in the right order
+     */
     public static ByteBuffer nativeAllocate(int capacity) {
         return ByteBuffer.allocate(capacity).order(ByteOrder.nativeOrder());
     }

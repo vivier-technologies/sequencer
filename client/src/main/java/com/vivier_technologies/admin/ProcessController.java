@@ -45,6 +45,7 @@ public class ProcessController {
     private final boolean _multicastLoopback;
     private final int _sendBufferSize;
     private final ByteBuffer _buffer;
+    private final int _ttl;
 
     private DatagramChannel _channel;
     private InetSocketAddress _multicastAddressSocket;
@@ -59,13 +60,15 @@ public class ProcessController {
         _multicastPort = configuration.getInt("admin.sender.multicast.port");
         _multicastLoopback = configuration.getBoolean("loopback");
         _sendBufferSize = configuration.getInt("admin.sender.osbuffersize");
+        _ttl = configuration.getInt("ttl");
 
         _buffer = ByteBufferFactory.nativeAllocate(1024);
     }
 
     public final void open() throws IOException {
         InetAddress multicastAddress = InetAddress.getByName(_multicastAddress);
-        _channel = _channelCreator.setupSendChannel(_ip, multicastAddress, _multicastPort, _multicastLoopback, _sendBufferSize);
+        _channel = _channelCreator.setupSendChannel(_ip, multicastAddress, _multicastPort,
+                _multicastLoopback, _sendBufferSize, _ttl);
         _multicastAddressSocket = new InetSocketAddress(multicastAddress, _multicastPort);
     }
 

@@ -17,6 +17,8 @@
 
 package com.vivier_technologies.admin;
 
+import com.vivier_technologies.utils.ByteArrayUtils;
+
 import java.nio.ByteBuffer;
 
 /**
@@ -42,11 +44,7 @@ public class ByteBufferCommand implements Command {
 
     @Override
     public final byte[] getInstance() {
-        if(_buffer.hasArray())
-            // array copy much faster but only when backed by array i.e. on heap/non-direct
-            System.arraycopy(_buffer.array(), Command.INSTANCE_NAME, _instance, 0, Command.INSTANCE_NAME_LEN);
-        else
-            _buffer.get(Command.INSTANCE_NAME, _instance, 0, Command.INSTANCE_NAME_LEN);
+        ByteArrayUtils.copy(_buffer, Command.INSTANCE_NAME, _instance, 0, Command.INSTANCE_NAME_LEN);
         return _instance;
     }
 

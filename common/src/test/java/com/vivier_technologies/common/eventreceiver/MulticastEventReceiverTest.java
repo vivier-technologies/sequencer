@@ -20,7 +20,7 @@ package com.vivier_technologies.common.eventreceiver;
 import com.vivier_technologies.common.mux.Multiplexer;
 import com.vivier_technologies.events.Event;
 import com.vivier_technologies.events.EventHeader;
-import com.vivier_technologies.events.StartOfStream;
+import com.vivier_technologies.events.Events;
 import com.vivier_technologies.utils.ByteArrayUtils;
 import com.vivier_technologies.utils.ConsoleLogger;
 import com.vivier_technologies.utils.MulticastTestChannelCreator;
@@ -49,7 +49,7 @@ class MulticastEventReceiverTest {
         doAnswer(invocation -> {
             Object[] args = invocation.getArguments();
             ByteBuffer buffer = (ByteBuffer)args[0];
-            buffer.putShort(EventHeader.TYPE, StartOfStream.TYPE);
+            buffer.putShort(EventHeader.TYPE, Events.START_OF_STREAM);
             buffer.put(EventHeader.SRC, _source, 0, _source.length);
             buffer.putLong(EventHeader.EVENT_SEQ, 1L);
             buffer.position(EventHeader.EVENT_HEADER_LEN);

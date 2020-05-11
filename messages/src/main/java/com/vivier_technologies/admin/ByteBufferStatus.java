@@ -15,7 +15,7 @@
  *
  */
 
-package com.vivier_technologies.commands;
+package com.vivier_technologies.admin;
 
 import com.vivier_technologies.utils.ByteArrayUtils;
 
@@ -32,41 +32,33 @@ import java.nio.ByteBuffer;
  *
  * Intended to be run single threaded so not worrying about padding to avoid false sharing etc
  */
-public class ByteBufferCommandHeader implements CommandHeader {
-    private ByteBuffer _buffer;
-    private byte[] _src = new byte[CommandHeader.SRC_LEN];
+public class ByteBufferStatus implements Status {
 
-    public final CommandHeader setData(ByteBuffer buffer) {
+    private ByteBuffer _buffer;
+    private final byte[] _instance = new byte[Status.INSTANCE_NAME_LEN];
+    private final byte[] _machineName = new byte[Status.MACHINE_NAME_LEN];
+
+    public final Status setData(ByteBuffer buffer) {
         _buffer = buffer;
         return this;
     }
 
     @Override
-    public void setHeader(int length, short type, byte[] src, int sequence) {
-        _buffer.putInt(CommandHeader.CMD_LEN, length);
-        _buffer.putShort(CommandHeader.TYPE, type);
-        _buffer.put(CommandHeader.SRC, src);
-        _buffer.putInt(CommandHeader.CMD_SEQ, sequence);
+    public final byte getState() {
+        return _buffer.get(Status.STATE);
     }
 
     @Override
-    public final int getLength() {
-        return _buffer.getInt(CommandHeader.CMD_LEN);
+    public byte[] getInstanceName() {
+        // Copy method should be short enough to inline though not sure a copy is really necessary - deal with that later
+        ByteArrayUtils.copy(_buffer, Status.INSTANCE_NAME, _instance, 0, Status.INSTANCE_NAME_LEN);
+        return _instance;
     }
 
     @Override
-    public final short getType() {
-        return _buffer.getShort(CommandHeader.TYPE);
-    }
-
-    @Override
-    public final byte[] getSource() {
-        ByteArrayUtils.copy(_buffer, CommandHeader.SRC, _src, 0, CommandHeader.SRC_LEN);
-        return _src;
-    }
-
-    @Override
-    public final int getSequence() {
-        return _buffer.getInt(CommandHeader.CMD_SEQ);
+    public byte[] getMachineName() {
+        // Copy method should be short enough to inline though not sure a copy is really necessary - deal with that later
+        ByteArrayUtils.copy(_buffer, Status.MACHINE_NAME, _machineName, 0, Status.MACHINE_NAME_LEN);
+        return _machineName;
     }
 }

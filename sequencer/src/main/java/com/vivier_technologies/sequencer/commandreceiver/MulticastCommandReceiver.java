@@ -58,12 +58,12 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHan
         this(logger,
                 mux,
                 channelCreator,
-                configuration.getString("sequencer.command.receiver.ip"),
-                configuration.getString("sequencer.command.receiver.multicast.ip"),
-                configuration.getInt("sequencer.command.receiver.multicast.port"),
-                configuration.getBoolean("sequencer.loopback"),
-                configuration.getInt("sequencer.command.receiver.osbuffersize"),
-                configuration.getInt("sequencer.maxmessagesize"));
+                configuration.getString("command.receiver.ip"),
+                configuration.getString("command.receiver.multicast.ip"),
+                configuration.getInt("command.receiver.multicast.port"),
+                configuration.getBoolean("loopback"),
+                configuration.getInt("command.receiver.osbuffersize"),
+                configuration.getInt("maxmessagesize"));
 
     }
 

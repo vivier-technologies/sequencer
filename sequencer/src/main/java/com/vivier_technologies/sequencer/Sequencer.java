@@ -25,14 +25,12 @@ import com.vivier_technologies.common.eventreceiver.EventHandler;
 import com.vivier_technologies.common.eventreceiver.EventReceiver;
 import com.vivier_technologies.common.mux.Multiplexer;
 import com.vivier_technologies.events.Event;
-import com.vivier_technologies.events.EventHeader;
 import com.vivier_technologies.sequencer.commandreceiver.CommandHandler;
 import com.vivier_technologies.sequencer.commandreceiver.CommandReceiver;
 import com.vivier_technologies.sequencer.emitter.EventEmitter;
 import com.vivier_technologies.sequencer.eventstore.EventStore;
 import com.vivier_technologies.sequencer.processor.CommandProcessor;
 import com.vivier_technologies.sequencer.replay.EventReplay;
-import com.vivier_technologies.utils.ByteArrayUtils;
 import com.vivier_technologies.utils.Logger;
 import org.apache.commons.configuration2.Configuration;
 
@@ -42,8 +40,6 @@ import java.io.IOException;
 public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
 
     private static final byte[] _componentName = Logger.generateLoggingKey("SEQUENCER");
-
-    private static final byte[] _source = new byte[EventHeader.SRC_LEN];
 
     private final CommandReceiver _commandReceiver;
     private final EventReceiver _eventReceiver;
@@ -68,8 +64,6 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
         String source = configuration.getString("source");
         if(source == null)
             throw new IllegalArgumentException("No source name set on sequencer");
-
-        ByteArrayUtils.copyAndPadRightWithSpaces(source.getBytes(), _source, 0, _source.length);
 
         _logger = logger;
         _mux = mux;

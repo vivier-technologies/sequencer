@@ -40,6 +40,7 @@ public class MulticastEventEmitter implements EventEmitter {
     private final boolean _multicastLoopback;
     private final int _sendBufferSize;
     private final int _maxEventSize;
+    private final int _ttl;
 
     private final Logger _logger;
     private final MulticastChannelCreator _channelCreator;
@@ -52,17 +53,18 @@ public class MulticastEventEmitter implements EventEmitter {
                                  MulticastChannelCreator channelCreator) throws IOException {
         this(logger,
                 channelCreator,
-                configuration.getString("sequencer.event.emitter.ip"),
-                configuration.getString("sequencer.event.emitter.multicast.ip"),
-                configuration.getInt("sequencer.event.emitter.multicast.port"),
-                configuration.getBoolean("sequencer.loopback"),
-                configuration.getInt("sequencer.event.emitter.osbuffersize"),
-                configuration.getInt("sequencer.maxmessagesize"));
+                configuration.getString("event.emitter.ip"),
+                configuration.getString("event.emitter.multicast.ip"),
+                configuration.getInt("event.emitter.multicast.port"),
+                configuration.getBoolean("loopback"),
+                configuration.getInt("event.emitter.osbuffersize"),
+                configuration.getInt("maxmessagesize"),
+                configuration.getInt("ttl"));
     }
 
     public MulticastEventEmitter(Logger logger, MulticastChannelCreator channelCreator,
                                  String ip, String multicastAddress, int multicastPort,
-                                 boolean multicastLoopback, int sendBufferSize, int maxEventSize) {
+                                 boolean multicastLoopback, int sendBufferSize, int maxEventSize, int ttl) {
         _ip = ip;
         _multicastAddress = multicastAddress;
         _multicastPort = multicastPort;
@@ -71,6 +73,7 @@ public class MulticastEventEmitter implements EventEmitter {
         _maxEventSize = maxEventSize;
         _logger = logger;
         _channelCreator = channelCreator;
+        _ttl = ttl;
     }
 
     @Override
@@ -78,15 +81,19 @@ public class MulticastEventEmitter implements EventEmitter {
         // send a single event packet
         ByteBuffer buffer = event.getData();
         if(buffer.limit() > _maxEventSize) {
-            _logger.warn(_componentName, "Attempting to send event that is larger than maxmessagesize");
+            _logger.error(_componentName, "Attempting to send event that is larger than maxmessagesize");
         }
-        _channel.send(buffer, _multicastAddressSocket);
+        // TODO in theory this could block but assuming the os buffer size is large then it shouldn't
+        if(_channel.send(buffer, _multicastAddressSocket) == 0) {
+            _logger.error(_componentName, "Event wasn't sent out");
+        }
     }
 
     @Override
     public final void open() throws IOException {
         InetAddress multicastAddress = InetAddress.getByName(_multicastAddress);
-        _channel = _channelCreator.setupSendChannel(_ip, multicastAddress, _multicastPort, _multicastLoopback, _sendBufferSize);
+        _channel = _channelCreator.setupSendChannel(_ip, multicastAddress, _multicastPort,
+                _multicastLoopback, _sendBufferSize, _ttl);
         _multicastAddressSocket = new InetSocketAddress(multicastAddress, _multicastPort);
     }
 

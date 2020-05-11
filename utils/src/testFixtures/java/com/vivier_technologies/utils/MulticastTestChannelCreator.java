@@ -36,13 +36,14 @@ public class MulticastTestChannelCreator implements MulticastChannelCreator {
 
     @Override
     public DatagramChannel setupReceiveChannel(String ip, String multicastAddress, int multicastPort,
-                                               boolean multicastLoopback, int receiveBufferSize, int maxCommandSize) throws IOException {
+                                               boolean multicastLoopback, int receiveBufferSize, int maxMessageSize)
+            throws IOException {
         return _receiveChannel;
     }
 
     @Override
     public DatagramChannel setupSendChannel(String ip, InetAddress multicastAddress, int multicastPort,
-                                            boolean multicastLoopback, int sendBufferSize) throws IOException {
+                                            boolean multicastLoopback, int sendBufferSize, int ttl) throws IOException {
         return _sendChannel;
     }
 }
