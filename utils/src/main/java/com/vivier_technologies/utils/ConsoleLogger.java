@@ -17,50 +17,82 @@
 
 package com.vivier_technologies.utils;
 
+/**
+ * Very very inefficient logger that dumps to system.out - could improve dramatically but just meant to for playground
+ * as the log info should go into remote stack for capture and easy analysis
+ */
 public class ConsoleLogger implements Logger {
 
     @Override
-    public void info(byte[] component, String s) {
-        log(Logger.INFO, component, s);
+    public void info(byte[] loggingKey, String s) {
+        log(Logger.INFO, loggingKey, s);
     }
 
     @Override
-    public void info(byte[] component, String s1, String s2) {
-        log(Logger.INFO, component, s1, s2);
+    public void info(byte[] loggingKey, String s1, String s2) {
+        log(Logger.INFO, loggingKey, s1, s2);
     }
 
     @Override
-    public void info(byte[] component, String s1, String s2, String s3) {
-        log(Logger.INFO, component, s1+s2+s3);
+    public void info(byte[] loggingKey, String s1, String s2, String s3) {
+        log(Logger.INFO, loggingKey, s1, s2, s3);
     }
 
     @Override
-    public void warn(byte[] component, String s) {
-        log(Logger.WARN, component, s);
+    public void info(byte[] loggingKey, String s1, byte[] s2, byte[] s3) {
+        log(Logger.INFO, loggingKey, s1, s2, s3);
     }
 
     @Override
-    public void warn(byte[] component, String s1, String s2) {
-        log(Logger.WARN, component, s1, s2);
+    public void warn(byte[] loggingKey, String s) {
+        log(Logger.WARN, loggingKey, s);
     }
 
     @Override
-    public void error(byte[] component, String s) {
-        log(Logger.ERROR, component, s);
+    public void warn(byte[] loggingKey, String s1, String s2) {
+        log(Logger.WARN, loggingKey, s1, s2);
     }
 
     @Override
-    public void error(byte[] component, String s1, String s2) {
-        log(Logger.ERROR, component, s1, s2);
+    public void error(byte[] loggingKey, String s) {
+        log(Logger.ERROR, loggingKey, s);
     }
 
     @Override
-    public void log(byte[] level, byte[] component, String s) {
-        System.out.println(new String(level) + ": " + new String(component) + ": " + s);
+    public void error(byte[] loggingKey, String s1, String s2) {
+        log(Logger.ERROR, loggingKey, s1, s2);
     }
 
     @Override
-    public void log(byte[] level, byte[] component, String s1, String s2) {
-        log(level, component, s1+s2);
+    public void info(byte[] loggingKey, byte[] s1, byte[] s2) {
+        log(Logger.INFO, loggingKey, s1, s2);
     }
+
+    @Override
+    public void log(byte[] level, byte[] loggingKey, String s) {
+        // clearly horribly inefficient but this logger ain't intended to be used anywhere important like production
+        System.out.println(new String(level) + ": " + new String(loggingKey) + ": " + s);
+    }
+
+    @Override
+    public void log(byte[] level, byte[] loggingKey, String s1, String s2) {
+        // clearly horribly inefficient but this logger ain't intended to be used anywhere important like production
+        log(level, loggingKey, s1 + " " + s2);
+    }
+
+    private void log(byte[] level, byte[] loggingKey, String s1, String s2, String s3) {
+        // clearly horribly inefficient but this logger ain't intended to be used anywhere important like production
+        log(level, loggingKey, s1, s2 + " " + s3);
+    }
+
+    private void log(byte[] level, byte[] loggingKey, byte[] s1, byte[] s2) {
+        // clearly horribly inefficient but this logger ain't intended to be used anywhere important like production
+        log(level, loggingKey, new String(s1), new String(s2));
+    }
+
+    private void log(byte[] level, byte[] loggingKey, String s1, byte[] s2, byte[] s3) {
+        // clearly horribly inefficient but this logger ain't intended to be used anywhere important like production
+        log(level, loggingKey, s1, new String(s2), new String(s3));
+    }
+
 }
