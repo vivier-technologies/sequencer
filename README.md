@@ -1,4 +1,6 @@
-# sequencer-eventsourcing
+# sequencer
+
+High performance java architecture that can be used to implement an event sourcing architecture with a pluggable processing interface that allows application logic to be embedded into the sequencer
 
 ![CI - UNIT TESTS](https://github.com/buckerslondon/sequencer-eventsourcing/workflows/CI%20-%20Run%20unit%20tests/badge.svg)
 
