@@ -17,9 +17,13 @@
 
 package com.vivier_technologies.common.admin;
 
-import com.vivier_technologies.admin.Status;
+import java.io.IOException;
 
-public interface StatusHandler {
+public interface StatusReceiver {
 
-    void onEvent(Status status);
+    void open() throws IOException;
+
+    void close();
+
+    void setHandler(StatusHandler handler);
 }

@@ -20,6 +20,9 @@ package com.vivier_technologies.utils;
 /**
  * Intention to write an object efficient logger behind this eventually rather than inefficient java one
  * that can push out to variety of locations - file, indexing service etc
+ *
+ * The intention is for the string parameters to be constants so interned rather than created on the fly - this could
+ * be more strictly enforced by using byte arrays but makes everything a little bit more fiddly
  */
 public interface Logger {
 
@@ -33,21 +36,25 @@ public interface Logger {
         return s.getBytes();
     }
 
-    void info(byte[] component, String s);
+    void info(byte[] loggingKey, String s);
 
-    void info(byte[] component, String s1, String s2);
+    void info(byte[] loggingKey, String s1, String s2);
 
-    void info(byte[] component, String s1, String s2, String s3);
+    void info(byte[] loggingKey, String s1, String s2, String s3);
+    
+    void info(byte[] loggingKey, byte[] s1, byte[] s2);
 
-    void warn(byte[] component, String s);
+    void info(byte[] loggingKey, String s1, byte[] s2, byte[] s3);
 
-    void warn(byte[] component, String s1, String s2);
+    void warn(byte[] loggingKey, String s);
 
-    void error(byte[] component, String s);
+    void warn(byte[] loggingKey, String s1, String s2);
 
-    void error(byte[] component, String s1, String s2);
+    void error(byte[] loggingKey, String s);
 
-    void log(byte[] level, byte[] component, String s);
+    void error(byte[] loggingKey, String s1, String s2);
 
-    void log(byte[] level, byte[] component, String s1, String s2);
+    void log(byte[] level, byte[] loggingKey, String s);
+
+    void log(byte[] level, byte[] loggingKey, String s1, String s2);
 }

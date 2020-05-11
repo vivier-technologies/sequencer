@@ -15,9 +15,9 @@
  *
  */
 
-package com.vivier_technologies.sequencer.commandreceiver;
+package com.vivier_technologies.common.admin;
 
-import com.vivier_technologies.commands.ByteBufferCommand;
+import com.vivier_technologies.admin.ByteBufferStatus;
 import com.vivier_technologies.common.mux.Multiplexer;
 import com.vivier_technologies.common.mux.MultiplexerHandler;
 import com.vivier_technologies.utils.ByteBufferFactory;
@@ -25,79 +25,89 @@ import com.vivier_technologies.utils.Logger;
 import com.vivier_technologies.utils.MulticastChannelCreator;
 import org.apache.commons.configuration2.Configuration;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
-public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHandler {
-    private static final byte[] _componentName = Logger.generateLoggingKey("CMDRECEIVER");
+public class MulticastStatusReceiver implements StatusReceiver, MultiplexerHandler {
+
+    private static final byte[] _componentName = Logger.generateLoggingKey("STATRECEIVER");
 
     private final String _multicastAddress;
     private final String _ip;
     private final int _multicastPort;
     private final boolean _multicastLoopback;
     private final int _receiveBufferSize;
-    private final int _maxCommandSize;
+    private final int _maxEventSize;
 
     private final Multiplexer _mux;
-    private final ByteBufferCommand _command;
-    private final MulticastChannelCreator _channelCreator;
-
+    private final ByteBufferStatus _status;
     private final Logger _logger;
     private final ByteBuffer _buffer;
+    private final MulticastChannelCreator _channelCreator;
 
     private DatagramChannel _channel;
-    private CommandHandler _listener;
+    private StatusHandler _listener;
 
-    @Inject
-    public MulticastCommandReceiver(Logger logger, Multiplexer mux, Configuration configuration,
-                                    MulticastChannelCreator channelCreator) {
+    public MulticastStatusReceiver(Logger logger, Multiplexer mux, Configuration configuration,
+                                   MulticastChannelCreator channelCreator) {
 
         this(logger,
                 mux,
                 channelCreator,
-                configuration.getString("command.receiver.ip"),
-                configuration.getString("command.receiver.multicast.ip"),
-                configuration.getInt("command.receiver.multicast.port"),
+                configuration.getString("status.receiver.ip"),
+                configuration.getString("status.receiver.multicast.ip"),
+                configuration.getInt("status.receiver.multicast.port"),
                 configuration.getBoolean("loopback"),
-                configuration.getInt("command.receiver.osbuffersize"),
+                configuration.getInt("status.receiver.osbuffersize"),
                 configuration.getInt("maxmessagesize"));
 
     }
 
-    public MulticastCommandReceiver(Logger logger, Multiplexer mux, MulticastChannelCreator channelCreator,
-                                    String ip, String multicastAddress, int multicastPort,
-                                    boolean multicastLoopback, int receiveBufferSize, int maxCommandSize) {
+    public MulticastStatusReceiver(Logger logger, Multiplexer mux, MulticastChannelCreator channelCreator,
+                                   String ip, String multicastAddress, int multicastPort,
+                                   boolean multicastLoopback, int receiveBufferSize, int maxEventSize) {
         _ip = ip;
         _multicastAddress = multicastAddress;
         _multicastPort = multicastPort;
         _multicastLoopback = multicastLoopback;
         _receiveBufferSize = receiveBufferSize;
-        _maxCommandSize = maxCommandSize;
+        _maxEventSize = maxEventSize;
 
         _logger = logger;
         _mux = mux;
         _channelCreator = channelCreator;
 
         //TODO consider whether to allocate direct or not here..
-        _buffer = ByteBufferFactory.nativeAllocateDirect(_maxCommandSize);
+        _buffer = ByteBufferFactory.nativeAllocateDirect(_maxEventSize);
 
-        _command = new ByteBufferCommand();
+        _status = new ByteBufferStatus();
     }
 
     @Override
-    public void setHandler(CommandHandler listener) {
-        _listener = listener;
-    }
-
-    @Override
-    public final void open() throws IOException {
+    public void open() throws IOException {
         _channel = _channelCreator.setupReceiveChannel(_ip, _multicastAddress, _multicastPort, _multicastLoopback,
-                _receiveBufferSize, _maxCommandSize);
+                _receiveBufferSize, _maxEventSize);
 
         _mux.register(_channel, SelectionKey.OP_READ, this);
+    }
+
+    @Override
+    public void setHandler(StatusHandler handler) {
+        _listener = handler;
+    }
+
+    @Override
+    public void close() {
+        try {
+            if(_channel != null) {
+                _mux.remove(_channel);
+                _channel.close();
+            }
+        } catch (IOException e) {
+            _logger.error(_componentName, "Unable to close socket");
+        }
     }
 
     @Override
@@ -117,10 +127,10 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHan
             _buffer.clear();
             _channel.receive(_buffer);
             _buffer.flip();
-            _command.setData(_buffer);
+            _status.setData(_buffer);
             // deliberately missing a check for whether the listener is set given this is on the critical
             // processing path...
-            _listener.onCommand(_command);
+            _listener.onEvent(_status);
         } catch (IOException e) {
             _logger.error(_componentName, "Unable to read from channel into buffer");
         }
@@ -131,16 +141,4 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHan
     public final void onWrite() {
 
     }
-
-    public final void close() {
-        try {
-            if(_channel != null) {
-                _mux.remove(_channel);
-                _channel.close();
-            }
-        } catch (IOException e) {
-            _logger.error(_componentName, "Unable to close command receiver");
-        }
-    }
-
 }

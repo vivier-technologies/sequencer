@@ -142,6 +142,8 @@ project(':common') {
     dependencies {
         implementation project(':utils'), project(':messages')
 
-        testFixturesImplementation project(':messages')
+        testImplementation testFixtures(project(':utils'))
+
+        testFixturesImplementation project(':messages'), project(':utils')
     }
 }

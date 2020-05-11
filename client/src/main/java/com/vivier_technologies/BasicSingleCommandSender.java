@@ -45,26 +45,27 @@ public class BasicSingleCommandSender implements EventHandler {
     private final boolean _multicastLoopback;
     private final int _sendBufferSize;
     private final int _maxCommandSize;
-    private final byte[] _source = new byte[CommandHeader.SRC_LEN];
+    private final byte[] _source;
     private final MulticastEventReceiver _eventReceiver;
     private final Multiplexer _mux;
     private final ByteBuffer _buffer;
     private final ByteBufferCommand _command;
     private final Logger _logger;
     private final MulticastChannelCreator _channelCreator;
+    private final int _ttl;
 
     private DatagramChannel _channel;
     private SocketAddress _multicastAddressSocket;
 
     public BasicSingleCommandSender(Logger logger, Configuration configuration) throws IOException {
-        String source = configuration.getString("source");
-        ByteArrayUtils.copyAndPadRightWithSpaces(source.getBytes(), _source, 0, _source.length);
-        _ip = configuration.getString("sequencer.command.sender.ip");
-        _multicastAddress = configuration.getString("sequencer.command.sender.multicast.ip");
-        _multicastPort = configuration.getInt("sequencer.command.sender.multicast.port");
-        _multicastLoopback = configuration.getBoolean("sequencer.loopback");
-        _sendBufferSize = configuration.getInt("sequencer.command.sender.osbuffersize");
-        _maxCommandSize = configuration.getInt("sequencer.maxmessagesize");
+        _source = CommandHeader.validateSource(configuration.getString("source"));
+        _ip = configuration.getString("command.sender.ip");
+        _multicastAddress = configuration.getString("command.sender.multicast.ip");
+        _multicastPort = configuration.getInt("command.sender.multicast.port");
+        _multicastLoopback = configuration.getBoolean("loopback");
+        _sendBufferSize = configuration.getInt("command.sender.osbuffersize");
+        _maxCommandSize = configuration.getInt("maxmessagesize");
+        _ttl = configuration.getInt("ttl");
         _logger = logger;
 
         _mux = new StandardJVMMultiplexer(logger);
@@ -93,7 +94,8 @@ public class BasicSingleCommandSender implements EventHandler {
 
     public final void open() throws IOException {
         InetAddress multicastAddress = InetAddress.getByName(_multicastAddress);
-        _channel = _channelCreator.setupSendChannel(_ip, multicastAddress, _multicastPort, _multicastLoopback, _sendBufferSize);
+        _channel = _channelCreator.setupSendChannel(_ip, multicastAddress, _multicastPort,
+                _multicastLoopback, _sendBufferSize, _ttl);
         _multicastAddressSocket = new InetSocketAddress(multicastAddress, _multicastPort);
 
         _mux.open();

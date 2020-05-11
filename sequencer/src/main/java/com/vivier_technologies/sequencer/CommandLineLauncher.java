@@ -60,7 +60,7 @@ public class CommandLineLauncher {
             // allow different command processors on command line to be plugged in
             try {
                 final Class commandProcessorClass =
-                        Class.forName(config.getString("sequencer.commandprocessor",
+                        Class.forName(config.getString("commandprocessor",
                                 "com.vivier_technologies.sequencer.processor.NoOpCommandProcessor"));
 
                 // TODO guice may create rather a lot of classes which may not be ideal but just getting going for now

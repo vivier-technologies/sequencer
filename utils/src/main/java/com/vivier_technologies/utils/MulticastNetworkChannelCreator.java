@@ -25,13 +25,27 @@ public class MulticastNetworkChannelCreator implements MulticastChannelCreator {
 
     private static final int NETWORK_HEADERS = 8+20; // UDP and IP respectively
 
+    /**
+     * Create a datagram channel with the maximum size verified vs the MTU
+     *
+     * @param ip ip to use locally
+     * @param multicastAddress multicast address to listen on
+     * @param multicastPort multicast port to listen on
+     * @param multicastLoopback whether to listen to loopback traffic i.e. from processes on same machine
+     * @param receiveBufferSize buffer size to hint to OS about
+     * @param maxMessageSize max size of inbound message
+     *
+     * @return DatagramChannel setup to receive multicast
+     *
+     * @throws IOException if unable to create and configure channel
+     */
     @Override
     public final DatagramChannel setupReceiveChannel(String ip, String multicastAddress, int multicastPort,
                                                boolean multicastLoopback, int receiveBufferSize,
-                                               int maxCommandSize) throws IOException {
+                                               int maxMessageSize) throws IOException {
 
         NetworkInterface nif = NetworkInterface.getByInetAddress(InetAddress.getByName(ip));
-        if(maxCommandSize > nif.getMTU() - MulticastNetworkChannelCreator.NETWORK_HEADERS)
+        if(maxMessageSize > nif.getMTU() - MulticastNetworkChannelCreator.NETWORK_HEADERS)
             throw new IllegalArgumentException("Max message size set too large for MTU");
 
         DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
@@ -50,14 +64,16 @@ public class MulticastNetworkChannelCreator implements MulticastChannelCreator {
 
     @Override
     public final DatagramChannel setupSendChannel(String ip, InetAddress multicastAddress, int multicastPort,
-                                            boolean multicastLoopback, int sendBufferSize) throws IOException {
+                                            boolean multicastLoopback, int sendBufferSize, int ttl) throws IOException {
 
         DatagramChannel channel = DatagramChannel.open(StandardProtocolFamily.INET);
         channel.configureBlocking(false);
         NetworkInterface nif = NetworkInterface.getByInetAddress(InetAddress.getByName(ip));
+        channel.setOption(StandardSocketOptions.SO_REUSEADDR, true);
         channel.setOption(StandardSocketOptions.IP_MULTICAST_IF, nif);
         channel.setOption(StandardSocketOptions.IP_MULTICAST_LOOP, multicastLoopback);
         channel.setOption(StandardSocketOptions.SO_SNDBUF, sendBufferSize);
+        channel.setOption(StandardSocketOptions.IP_MULTICAST_TTL, ttl);
         channel.bind(null); // select any local address
         channel.join(multicastAddress, nif);
 

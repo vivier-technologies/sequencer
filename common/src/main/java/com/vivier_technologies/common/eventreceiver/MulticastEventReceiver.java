@@ -40,7 +40,7 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerHandler
     private final int _multicastPort;
     private final boolean _multicastLoopback;
     private final int _receiveBufferSize;
-    private final int _maxCommandSize;
+    private final int _maxEventSize;
 
     private final Multiplexer _mux;
     private final ByteBufferEvent _event;
@@ -58,31 +58,31 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerHandler
         this(logger,
                 mux,
                 channelCreator,
-                configuration.getString("sequencer.event.receiver.ip"),
-                configuration.getString("sequencer.event.receiver.multicast.ip"),
-                configuration.getInt("sequencer.event.receiver.multicast.port"),
-                configuration.getBoolean("sequencer.loopback"),
-                configuration.getInt("sequencer.event.receiver.osbuffersize"),
-                configuration.getInt("sequencer.maxmessagesize"));
+                configuration.getString("event.receiver.ip"),
+                configuration.getString("event.receiver.multicast.ip"),
+                configuration.getInt("event.receiver.multicast.port"),
+                configuration.getBoolean("loopback"),
+                configuration.getInt("event.receiver.osbuffersize"),
+                configuration.getInt("maxmessagesize"));
 
     }
 
     public MulticastEventReceiver(Logger logger, Multiplexer mux, MulticastChannelCreator channelCreator,
                                     String ip, String multicastAddress, int multicastPort,
-                                    boolean multicastLoopback, int receiveBufferSize, int maxCommandSize) {
+                                    boolean multicastLoopback, int receiveBufferSize, int maxEventSize) {
         _ip = ip;
         _multicastAddress = multicastAddress;
         _multicastPort = multicastPort;
         _multicastLoopback = multicastLoopback;
         _receiveBufferSize = receiveBufferSize;
-        _maxCommandSize = maxCommandSize;
+        _maxEventSize = maxEventSize;
 
         _logger = logger;
         _mux = mux;
         _channelCreator = channelCreator;
 
         //TODO consider whether to allocate direct or not here..
-        _buffer = ByteBufferFactory.nativeAllocateDirect(_maxCommandSize);
+        _buffer = ByteBufferFactory.nativeAllocateDirect(_maxEventSize);
 
         _event = new ByteBufferEvent();
     }
@@ -95,7 +95,7 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerHandler
     @Override
     public final void open() throws IOException {
         _channel = _channelCreator.setupReceiveChannel(_ip, _multicastAddress, _multicastPort, _multicastLoopback,
-                _receiveBufferSize, _maxCommandSize);
+                _receiveBufferSize, _maxEventSize);
 
         _mux.register(_channel, SelectionKey.OP_READ, this);
     }

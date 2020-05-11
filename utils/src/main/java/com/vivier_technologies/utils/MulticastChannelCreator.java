@@ -26,10 +26,35 @@ import java.nio.channels.DatagramChannel;
  */
 public interface MulticastChannelCreator {
 
+    /**
+     * Return a datagram channel that can handle multicast inbound
+     *
+     * @param ip ip to use locally
+     * @param multicastAddress multicast address to listen on
+     * @param multicastPort multicast port to listen on
+     * @param multicastLoopback whether to listen to loopback traffic i.e. from processes on same machine
+     * @param receiveBufferSize buffer size to hint to OS about
+     * @param maxMessageSize max size of inbound message
+     *
+     * @return DatagramChannel
+     *
+     * @throws IOException if unable to setup the channel
+     */
     DatagramChannel setupReceiveChannel(String ip, String multicastAddress, int multicastPort,
                                         boolean multicastLoopback, int receiveBufferSize,
-                                        int maxCommandSize) throws IOException;
+                                        int maxMessageSize) throws IOException;
 
+    /**
+     * Return a datagram channel that can send multicast traffic
+     *
+     * @param ip ip to use locally
+     * @param multicastAddress multicast address to send on
+     * @param multicastPort multicast port to send on
+     * @param multicastLoopback
+     * @param sendBufferSize
+     * @return
+     * @throws IOException
+     */
     DatagramChannel setupSendChannel(String ip, InetAddress multicastAddress, int multicastPort,
-                                     boolean multicastLoopback, int sendBufferSize) throws IOException;
+                                     boolean multicastLoopback, int sendBufferSize, int ttl) throws IOException;
 }

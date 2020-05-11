@@ -17,6 +17,10 @@
 
 package com.vivier_technologies.common.admin;
 
+import com.vivier_technologies.admin.Command;
+import com.vivier_technologies.admin.Status;
+import com.vivier_technologies.utils.ByteArrayUtils;
+import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
 import com.vivier_technologies.utils.MulticastChannelCreator;
 import org.apache.commons.configuration2.Configuration;
@@ -26,6 +30,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 public class MulticastStatusEmitter implements StatusEmitter {
@@ -37,9 +42,11 @@ public class MulticastStatusEmitter implements StatusEmitter {
     private final int _multicastPort;
     private final boolean _multicastLoopback;
     private final int _sendBufferSize;
-    private final int _maxEventSize;
+    private final int _ttl;
     private final MulticastChannelCreator _channelCreator;
     private final Logger _logger;
+    private final ByteBuffer _buffer;
+    private final byte[] _machineName = new byte[Status.MACHINE_NAME_LEN];
 
     private DatagramChannel _channel;
     private SocketAddress _multicastAddressSocket;
@@ -48,32 +55,39 @@ public class MulticastStatusEmitter implements StatusEmitter {
     public MulticastStatusEmitter(Logger logger, Configuration configuration, MulticastChannelCreator channelCreator) {
         this(logger,
                 channelCreator,
-                configuration.getString("sequencer.status.emitter.ip"),
-                configuration.getString("sequencer.status.emitter.multicast.ip"),
-                configuration.getInt("sequencer.status.emitter.multicast.port"),
-                configuration.getBoolean("sequencer.loopback"),
-                configuration.getInt("sequencer.status.emitter.osbuffersize"),
-                configuration.getInt("sequencer.maxmessagesize"));
+                configuration.getString("instance"),
+                configuration.getString("status.emitter.ip"),
+                configuration.getString("status.emitter.multicast.ip"),
+                configuration.getInt("status.emitter.multicast.port"),
+                configuration.getBoolean("loopback"),
+                configuration.getInt("status.emitter.osbuffersize"),
+                configuration.getInt("ttl"));
     }
 
-    public MulticastStatusEmitter(Logger logger, MulticastChannelCreator channelCreator,
+    public MulticastStatusEmitter(Logger logger, MulticastChannelCreator channelCreator, String instanceName,
                                   String ip, String multicastAddress, int multicastPort,
-                                  boolean multicastLoopback, int sendBufferSize, int maxEventSize) {
+                                  boolean multicastLoopback, int sendBufferSize, int ttl) {
         _ip = ip;
         _multicastAddress = multicastAddress;
         _multicastPort = multicastPort;
         _multicastLoopback = multicastLoopback;
         _sendBufferSize = sendBufferSize;
-        _maxEventSize = maxEventSize;
         _logger = logger;
         _channelCreator = channelCreator;
+        _ttl = ttl;
+
+        _buffer = ByteBufferFactory.nativeAllocateDirect(Status.STATUS_LEN);
+        _buffer.put(Status.INSTANCE_NAME, Command.validateInstanceName(instanceName));
     }
 
     @Override
     public final void open() throws IOException {
         InetAddress multicastAddress = InetAddress.getByName(_multicastAddress);
-        _channel = _channelCreator.setupSendChannel(_ip, multicastAddress, _multicastPort, _multicastLoopback, _sendBufferSize);
-        //_hostName = InetAddress.getByName(_ip).getHostName();
+        _channel = _channelCreator.setupSendChannel(_ip, multicastAddress, _multicastPort,
+                _multicastLoopback, _sendBufferSize, _ttl);
+        ByteArrayUtils.copyAndTruncateOrPadRightWithSpaces(
+                InetAddress.getByName(_ip).getHostName().getBytes(), _machineName, 0, Status.MACHINE_NAME_LEN);
+        _buffer.put(Status.MACHINE_NAME, _machineName);
         _multicastAddressSocket = new InetSocketAddress(multicastAddress, _multicastPort);
     }
 
@@ -84,15 +98,25 @@ public class MulticastStatusEmitter implements StatusEmitter {
                 _channel.close();
             }
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to close event emitter");
+            _logger.error(_componentName, "Unable to close status emitter");
         }
     }
 
     @Override
     public final void sendStatus(boolean isActive) {
-        // send a single event packet
+        // set the status - the rest of the status event is preset
+        if (isActive) {
+            _buffer.put(Status.STATE, Status.State.ACTIVE);
+        } else {
+            _buffer.put(Status.STATE, Status.State.PASSIVE);
+        }
+        _buffer.position(Status.STATUS_LEN).flip();
 
-        //_channel.send(_buffer, _multicastAddressSocket);
+        try {
+            _channel.send(_buffer, _multicastAddressSocket);
+        } catch (IOException e) {
+            _logger.info(_componentName, "Unable to send out status");
+        }
     }
 
 }

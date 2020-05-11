@@ -17,10 +17,25 @@
 
 package com.vivier_technologies.admin;
 
-import java.nio.ByteBuffer;
-
 public interface Status {
 
+    interface State {
+        byte ACTIVE = 0;
+        byte PASSIVE = 1;
+    }
+
+    int STATE = 0;
+    int INSTANCE_NAME = 1;
+    int INSTANCE_NAME_LEN = 16;
+    int MACHINE_NAME = INSTANCE_NAME + INSTANCE_NAME_LEN;
+    int MACHINE_NAME_LEN = 50;
+    int STATUS_LEN = MACHINE_NAME + MACHINE_NAME_LEN;
+
     //TODO consider whether bytebuffer is the right abstraction here
-    ByteBuffer getData();
+    byte getState();
+
+    byte[] getInstanceName();
+
+    byte[] getMachineName();
+
 }

@@ -21,7 +21,6 @@ import com.vivier_technologies.admin.ByteBufferCommand;
 import com.vivier_technologies.admin.Command;
 import com.vivier_technologies.common.mux.Multiplexer;
 import com.vivier_technologies.common.mux.MultiplexerHandler;
-import com.vivier_technologies.utils.ByteArrayUtils;
 import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
 import com.vivier_technologies.utils.MulticastChannelCreator;
@@ -55,7 +54,7 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler
     private DatagramChannel _channel;
     private AdminHandler _listener;
 
-    private final byte[] _instanceName = new byte[Command.INSTANCE_NAME_LEN];
+    private final byte[] _instanceName;
 
     @Inject
     public MulticastAdminReceiver(Logger logger, Multiplexer mux, Configuration configuration,
@@ -65,12 +64,12 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler
                 mux,
                 channelCreator,
                 configuration.getString("instance"),
-                configuration.getString("sequencer.admin.receiver.ip"),
-                configuration.getString("sequencer.admin.receiver.multicast.ip"),
-                configuration.getInt("sequencer.admin.receiver.multicast.port"),
-                configuration.getBoolean("sequencer.loopback"),
-                configuration.getInt("sequencer.admin.receiver.osbuffersize"),
-                configuration.getInt("sequencer.maxmessagesize"));
+                configuration.getString("admin.receiver.ip"),
+                configuration.getString("admin.receiver.multicast.ip"),
+                configuration.getInt("admin.receiver.multicast.port"),
+                configuration.getBoolean("loopback"),
+                configuration.getInt("admin.receiver.osbuffersize"),
+                configuration.getInt("maxmessagesize"));
 
     }
 
@@ -88,12 +87,11 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler
         _mux = mux;
         _channelCreator = channelCreator;
 
-        //TODO consider whether to allocate direct or not here..
         _buffer = ByteBufferFactory.nativeAllocateDirect(_maxCommandSize);
 
         _adminCommand = new ByteBufferCommand();
 
-        ByteArrayUtils.copyAndPadRightWithSpaces(instance.getBytes(), _instanceName, 0, Command.INSTANCE_NAME_LEN);
+        _instanceName = Command.validateInstanceName(instance);
     }
 
     @Override
@@ -122,7 +120,6 @@ public class MulticastAdminReceiver implements AdminReceiver, MultiplexerHandler
             _channel.receive(_buffer);
             _buffer.flip();
 
-            // TODO CRITICAL need to check whether this message is for me i.e. instance matches or wildcard
             _adminCommand.setData(_buffer);
             byte[] instance = _adminCommand.getInstance();
             if (Arrays.equals(instance, _instanceName) || Arrays.equals(instance, Command.ALL_INSTANCES)) {

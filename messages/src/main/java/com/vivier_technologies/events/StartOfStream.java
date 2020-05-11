@@ -17,6 +17,9 @@
 
 package com.vivier_technologies.events;
 
+/**
+ * Start of stream message - first message send on the core sequencer component going active
+ * (if not already sent for given session)
+ */
 public interface StartOfStream extends Event {
-    public static final short TYPE = 0;
 }

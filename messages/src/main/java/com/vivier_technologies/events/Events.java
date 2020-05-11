@@ -15,11 +15,9 @@
  *
  */
 
-package com.vivier_technologies.common.admin;
+package com.vivier_technologies.events;
 
-import com.vivier_technologies.admin.Status;
-
-public interface StatusHandler {
-
-    void onEvent(Status status);
+public interface Events {
+    public static final short START_OF_STREAM = 0;
+    public static final short END_OF_STREAM = 1;
 }

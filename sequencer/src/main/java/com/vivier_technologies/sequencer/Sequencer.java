@@ -25,14 +25,12 @@ import com.vivier_technologies.common.eventreceiver.EventHandler;
 import com.vivier_technologies.common.eventreceiver.EventReceiver;
 import com.vivier_technologies.common.mux.Multiplexer;
 import com.vivier_technologies.events.Event;
-import com.vivier_technologies.events.EventHeader;
 import com.vivier_technologies.sequencer.commandreceiver.CommandHandler;
 import com.vivier_technologies.sequencer.commandreceiver.CommandReceiver;
 import com.vivier_technologies.sequencer.emitter.EventEmitter;
 import com.vivier_technologies.sequencer.eventstore.EventStore;
 import com.vivier_technologies.sequencer.processor.CommandProcessor;
 import com.vivier_technologies.sequencer.replay.EventReplay;
-import com.vivier_technologies.utils.ByteArrayUtils;
 import com.vivier_technologies.utils.Logger;
 import org.apache.commons.configuration2.Configuration;
 
@@ -42,8 +40,6 @@ import java.io.IOException;
 public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
 
     private static final byte[] _componentName = Logger.generateLoggingKey("SEQUENCER");
-
-    private static final byte[] _source = new byte[EventHeader.SRC_LEN];
 
     private final CommandReceiver _commandReceiver;
     private final EventReceiver _eventReceiver;
@@ -68,8 +64,6 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
         String source = configuration.getString("source");
         if(source == null)
             throw new IllegalArgumentException("No source name set on sequencer");
-
-        ByteArrayUtils.copyAndPadRightWithSpaces(source.getBytes(), _source, 0, _source.length);
 
         _logger = logger;
         _mux = mux;
@@ -122,6 +116,14 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
         _mux.close();
     }
 
+    /**
+     * The sequencer receives a command from a sender and processes it - assuming its valid then puts it into its store
+     * and publishes it out
+     *
+     * Will only be listening when active
+     *
+     * @param command the received command
+     */
     @Override
     public void onCommand(Command command) {
         Event e = _processor.process(command);
@@ -134,6 +136,15 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
         }
     }
 
+    /**
+     * The sequencer receives an event from another sequencer instance thats primary and processes it putting it in its
+     * store afterwards - all sequencers should have the same state - events cause the state to be updated blindly rather
+     * than being validated as in the case of a command
+     *
+     * Will only be listening when passive
+     *
+     * @param event the received event from the stream
+     */
     @Override
     public void onEvent(Event event) {
         Event e = _processor.process(event);
@@ -145,6 +156,9 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
 
     // Very simple state active/passive so no need for state machine here thus far
 
+    /**
+     * Go active - becomes command processor and starts listening and generating events from those commands
+     */
     @Override
     public void onGoActive() {
         if(!_active) {
@@ -153,11 +167,11 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
                 _commandReceiver.open();
                 _eventEmitter.open();
                 _active = true;
-                // TODO send out start of stream if its the start of the stream
                 if (_eventStore.isEmpty()) {
-
+                    // TODO send out start of stream if its the start of the stream
                 }
                 _logger.info(_componentName, "Gone active");
+                _statusEmitter.sendStatus(_active);
             } catch (IOException e) {
                 _logger.error(_componentName, "Unable to go active as cannot open command receiver");
             }
@@ -166,6 +180,9 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
         }
     }
 
+    /**
+     * Go passive - becomes event listener and just blindly reads the stream
+     */
     @Override
     public void onGoPassive() {
         if(_active) {
@@ -178,6 +195,7 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
                 _eventEmitter.close();
                 _active = false;
                 _logger.info(_componentName, "Gone passive");
+                _statusEmitter.sendStatus(_active);
             } catch (IOException e) {
                 _logger.error(_componentName, "Unable to go passive as cannot open event receiver");
             }
@@ -186,6 +204,9 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
         }
     }
 
+    /**
+     * Close down and if active send out the end of stream marker
+     */
     @Override
     public void onShutdown() {
         _logger.info(_componentName, "Shutting down");
@@ -196,9 +217,11 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
         _logger.info(_componentName, "Shutdown");
     }
 
+    /**
+     * Publish a status heartbeat
+     */
     @Override
     public void onStatusRequest() {
-        // TODO send out status via emitter
         _statusEmitter.sendStatus(_active);
     }
 }
