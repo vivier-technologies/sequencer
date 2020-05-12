@@ -31,11 +31,24 @@ public interface Status {
     int MACHINE_NAME_LEN = 50;
     int STATUS_LEN = MACHINE_NAME + MACHINE_NAME_LEN;
 
-    //TODO consider whether bytebuffer is the right abstraction here
+    /**
+     * Get state of the status sender
+     *
+     * @return byte representing the state - values above
+     */
     byte getState();
 
+    /**
+     * Physical instance name of the sending process
+     *
+     * @return string in byte array of length INSTANCE_NAME_LEN
+     */
     byte[] getInstanceName();
 
+    /**
+     * Machine name the sending process is located on
+     *
+     * @return string in byte array of length MACHINE_NAME_LEN
+     */
     byte[] getMachineName();
-
 }

@@ -21,6 +21,20 @@ import com.vivier_technologies.utils.ByteArrayUtils;
 
 public interface Command {
 
+    interface Type {
+        short STATUS = 0;
+        short GO_ACTIVE = 1;
+        short GO_PASSIVE = 2;
+        short SHUTDOWN = 3;
+    }
+
+    int TYPE = 0;
+    int INSTANCE_NAME = 2;
+    int INSTANCE_NAME_LEN = 16;
+    int ADMIN_CMD_LEN = INSTANCE_NAME + INSTANCE_NAME_LEN;
+
+    byte[] ALL_INSTANCES = validateInstanceName("*");
+
     /**
      * Make sure instance name fits within the size allotted - shouldn't be called on the critical path
      * of any sensitive code
@@ -36,21 +50,17 @@ public interface Command {
         return instanceName;
     }
 
-    interface Type {
-        short STATUS = 0;
-        short GO_ACTIVE = 1;
-        short GO_PASSIVE = 2;
-        short SHUTDOWN = 3;
-    }
-
-    int TYPE = 0;
-    int INSTANCE_NAME = 2;
-    int INSTANCE_NAME_LEN = 16;
-    int ADMIN_CMD_LEN = INSTANCE_NAME + INSTANCE_NAME_LEN;
-
-    byte[] ALL_INSTANCES = validateInstanceName("*");
-
+    /**
+     * Physical instance being address by the admin command
+     *
+     * @return string within byte array of length INSTANCE_NAME_LEN
+     */
     byte[] getInstance();
 
+    /**
+     * Type of admin command
+     *
+     * @return short representing the type
+     */
     short getType();
 }

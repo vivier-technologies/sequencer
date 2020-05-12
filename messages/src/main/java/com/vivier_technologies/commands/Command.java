@@ -23,9 +23,20 @@ public interface Command {
 
     int CMD_BODY_START = CommandHeader.CMD_HEADER_LEN;
 
+    /**
+     * Get wrapper object to allow access to command header fields
+     *
+     * Mutable so don't store as a reference anywhere and should be used transiently
+     *
+     * @return object representing the command header
+     */
     CommandHeader getHeader();
 
-    //TODO consider whether bytebuffer is the right abstraction here
-    ByteBuffer getData();
+    /**
+     * Get underlying data
+     *
+     * @return buffer with data
+     */
+    ByteBuffer getData(); //TODO consider whether bytebuffer is the right abstraction here
 
 }

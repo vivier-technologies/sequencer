@@ -26,8 +26,19 @@ public interface Event {
 
     int EVENT_BODY_START = EventHeader.EVENT_HEADER_LEN;
 
+    /**
+     * Get wrapper object to allow access to event header fields
+     *
+     * Mutable so don't store as a reference anywhere and should be used transiently
+     *
+     * @return object representing the event header
+     */
     EventHeader getHeader();
 
-    //TODO consider whether bytebuffer is the right abstraction here
-    ByteBuffer getData();
+    /**
+     * Get underlying data
+     *
+     * @return buffer with data
+     */
+    ByteBuffer getData(); //TODO consider whether bytebuffer is the right abstraction here
 }
