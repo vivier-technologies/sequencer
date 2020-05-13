@@ -29,7 +29,7 @@ import org.apache.commons.configuration2.Configuration;
  */
 public class ProcessStatusLogger implements StatusHandler {
 
-    private final static byte[] _componentName = Logger.generateLoggingKey("PROC_STAT_LOG");
+    private final static byte[] _loggingKey = Logger.generateLoggingKey("PROC_STAT_LOG");
 
     private final Logger _logger;
     private final Configuration _configuration;
@@ -45,9 +45,9 @@ public class ProcessStatusLogger implements StatusHandler {
     @Override
     public void onEvent(Status status) {
         if(status.getState() == Status.State.PASSIVE) {
-            _logger.info(_componentName, "PASSIVE", status.getInstanceName(), status.getMachineName());
+            _logger.info(_loggingKey, "PASSIVE", status.getInstanceName(), status.getMachineName());
         } else {
-            _logger.info(_componentName, "ACTIVE", status.getInstanceName(), status.getMachineName());
+            _logger.info(_loggingKey, "ACTIVE", status.getInstanceName(), status.getMachineName());
         }
     }
 

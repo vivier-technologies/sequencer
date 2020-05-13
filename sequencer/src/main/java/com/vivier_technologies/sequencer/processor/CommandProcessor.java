@@ -25,17 +25,22 @@ public interface CommandProcessor {
     /**
      * Called when the sequencer hosting the processor is active and the master for receiving commands
      * and publishing events
-     * @param command
-     * @return
+     * @param command the command object that represents what the sequencer is being asked to process
+     * @return the event created by the command
      */
     Event process(Command command);
 
     /**
      * Called when the sequencer hosting the processor is passive and a slave of events
-     * @param event
-     * @return
+     * @param event the event object that has come from another sequencer and needs to be processed by this one blindly
+     * @return the event
      */
     Event process(Event event);
 
+    /**
+     * Returns the command processor name
+     *
+     * @return the name
+     */
     String getName();
 }

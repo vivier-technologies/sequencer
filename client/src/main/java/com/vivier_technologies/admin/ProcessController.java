@@ -34,7 +34,7 @@ import java.nio.channels.DatagramChannel;
  */
 public class ProcessController {
 
-    private final static byte[] _componentName = Logger.generateLoggingKey("PROC_CTRL");
+    private final static byte[] _loggingKey = Logger.generateLoggingKey("PROC_CTRL");
 
     private final Logger _logger;
     private final Configuration _configuration;
@@ -73,22 +73,22 @@ public class ProcessController {
     }
 
     public final void sendActive(String instance) throws IOException {
-        _logger.info(_componentName, "Sending goactive");
+        _logger.info(_loggingKey, "Sending goactive");
         send(Command.Type.GO_ACTIVE, instance);
     }
 
     public final void sendPassive(String instance) throws IOException {
-        _logger.info(_componentName, "Sending gopassive");
+        _logger.info(_loggingKey, "Sending gopassive");
         send(Command.Type.GO_PASSIVE, instance);
     }
 
     public final void sendShutdown(String instance) throws IOException {
-        _logger.info(_componentName, "Sending shutdown");
+        _logger.info(_loggingKey, "Sending shutdown");
         send(Command.Type.SHUTDOWN, instance);
     }
 
     public final void sendStatusUpdateRequest(String instance) throws IOException {
-        _logger.info(_componentName, "Sending status update request");
+        _logger.info(_loggingKey, "Sending status update request");
         send(Command.Type.STATUS, instance);
     }
 
@@ -102,7 +102,7 @@ public class ProcessController {
 
         _channel.send(_buffer, _multicastAddressSocket);
 
-        _logger.info(_componentName, "Sent command to ", instance);
+        _logger.info(_loggingKey, "Sent command to ", instance);
     }
 
     public final void close() throws IOException {

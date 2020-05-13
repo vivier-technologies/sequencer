@@ -37,7 +37,7 @@ import java.nio.channels.DatagramChannel;
 import java.util.Arrays;
 
 public class BasicSingleCommandSender implements EventHandler {
-    public static byte[] _componentName = Logger.generateLoggingKey("CMDSENDER");
+    public static byte[] _loggingKey = Logger.generateLoggingKey("CMDSENDER");
 
     private final String _multicastAddress;
     private final String _ip;
@@ -86,9 +86,9 @@ public class BasicSingleCommandSender implements EventHandler {
         _buffer.flip();
 
         if(_buffer.limit() > _maxCommandSize) {
-            _logger.warn(_componentName, "Attempting to send command that is larger than maxmessagesize");
+            _logger.warn(_loggingKey, "Attempting to send command that is larger than maxmessagesize");
         }
-        _logger.info(_componentName, "SENDING");
+        _logger.info(_loggingKey, "SENDING");
         _channel.send(_buffer, _multicastAddressSocket);
     }
 
@@ -111,7 +111,7 @@ public class BasicSingleCommandSender implements EventHandler {
     public void onEvent(Event event) {
         // validate it was ours - can just check source because we only send one at a time
         if(Arrays.equals(event.getHeader().getSource(), _source)) {
-            _logger.info(_componentName, "RCVD");
+            _logger.info(_loggingKey, "RCVD");
             close();
         }
     }
@@ -131,7 +131,7 @@ public class BasicSingleCommandSender implements EventHandler {
         BasicSingleCommandSender sender = new BasicSingleCommandSender(logger, ConfigReader.getConfig(logger, args));
         sender.open();
 
-        sender.send(1, (short)1, "TESTTESTTEST".getBytes());
+        sender.send(2, (short)1, "TESTTESTTEST".getBytes());
 
         sender.waitForEvent();
     }

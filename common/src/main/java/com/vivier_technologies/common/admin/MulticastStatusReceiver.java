@@ -32,7 +32,7 @@ import java.nio.channels.SelectionKey;
 
 public class MulticastStatusReceiver implements StatusReceiver, MultiplexerHandler {
 
-    private static final byte[] _componentName = Logger.generateLoggingKey("STATRECEIVER");
+    private static final byte[] _loggingKey = Logger.generateLoggingKey("STATRECEIVER");
 
     private final String _multicastAddress;
     private final String _ip;
@@ -106,7 +106,7 @@ public class MulticastStatusReceiver implements StatusReceiver, MultiplexerHandl
                 _channel.close();
             }
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to close socket");
+            _logger.error(_loggingKey, "Unable to close socket");
         }
     }
 
@@ -132,7 +132,7 @@ public class MulticastStatusReceiver implements StatusReceiver, MultiplexerHandl
             // processing path...
             _listener.onEvent(_status);
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to read from channel into buffer");
+            _logger.error(_loggingKey, "Unable to read from channel into buffer");
         }
 
     }

@@ -32,11 +32,32 @@ public interface EventHeader {
 
     int EVENT_HEADER_LEN = EVENT_SEQ + 8;
 
+    /**
+     * Length of event
+     *
+     * @return length of event message
+     */
     int getLength();
 
+    /**
+     * Event type
+     *
+     * @return type of event being sent/received
+     */
     short getType();
 
+    /**
+     * Original source of the command that generated the event or in the case of certain events that are created
+     * by the sequencer itself the sequencer source name
+     *
+     * @return string contained in byte array of length SRC_LEN
+     */
     byte[] getSource();
 
+    /**
+     * Event sequence id - incrementing id maintained by the sequencer
+     *
+     * @return long representing the sequence id of this event
+     */
     long getSequence();
 }

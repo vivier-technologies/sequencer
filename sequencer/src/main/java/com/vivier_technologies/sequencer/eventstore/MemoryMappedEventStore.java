@@ -32,7 +32,7 @@ import java.nio.file.Path;
 
 public final class MemoryMappedEventStore implements EventStore {
 
-    private static byte[] _componentName = Logger.generateLoggingKey("MMEVTSTORE");
+    private static byte[] _loggingKey = Logger.generateLoggingKey("MMEVTSTORE");
     private static Logger _logger;
 
     private FileChannel _channel;
@@ -72,7 +72,7 @@ public final class MemoryMappedEventStore implements EventStore {
             _channel.close();
             _buffer = null;
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to close socket");
+            _logger.error(_loggingKey, "Unable to close socket");
         }
     }
 
