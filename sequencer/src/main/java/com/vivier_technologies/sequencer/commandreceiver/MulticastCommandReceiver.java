@@ -32,7 +32,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHandler {
-    private static final byte[] _componentName = Logger.generateLoggingKey("CMDRECEIVER");
+    private static final byte[] _loggingKey = Logger.generateLoggingKey("CMDRECEIVER");
 
     private final String _multicastAddress;
     private final String _ip;
@@ -122,7 +122,7 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHan
             // processing path...
             _listener.onCommand(_command);
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to read from channel into buffer");
+            _logger.error(_loggingKey, "Unable to read from channel into buffer");
         }
 
     }
@@ -139,7 +139,7 @@ public class MulticastCommandReceiver implements CommandReceiver, MultiplexerHan
                 _channel.close();
             }
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to close command receiver");
+            _logger.error(_loggingKey, "Unable to close command receiver");
         }
     }
 

@@ -45,13 +45,13 @@ import org.apache.commons.configuration2.ex.ConfigurationException;
 
 public class CommandLineLauncher {
 
-    private static final byte[] _componentName = Logger.generateLoggingKey("CL_LAUNCHER");
+    private static final byte[] _loggingKey = Logger.generateLoggingKey("CL_LAUNCHER");
 
     public static void main(String[] args) {
 
         // TODO get logger type from config
         Logger logger = new ConsoleLogger();
-        logger.info(CommandLineLauncher._componentName, "Sequencer starting");
+        logger.info(CommandLineLauncher._loggingKey, "Sequencer starting");
 
         try {
             // TODO this configuration may create rather a lot of classes which may not be ideal but just getting going for now
@@ -101,12 +101,12 @@ public class CommandLineLauncher {
                 sequencer.start();
 
             } catch (ClassNotFoundException e) {
-                logger.error(CommandLineLauncher._componentName, "Unable to instantiate command sequencer.processor class, shutting down");
+                logger.error(CommandLineLauncher._loggingKey, "Unable to instantiate command sequencer.processor class, shutting down");
             }
         } catch (ParseException e) {
-            logger.error(CommandLineLauncher._componentName, "Unable to parse command line, shutting down");
+            logger.error(CommandLineLauncher._loggingKey, "Unable to parse command line, shutting down");
         } catch (ConfigurationException e) {
-            logger.error(CommandLineLauncher._componentName, "Unable to parse configuration, shutting down");
+            logger.error(CommandLineLauncher._loggingKey, "Unable to parse configuration, shutting down");
         }
     }
 }

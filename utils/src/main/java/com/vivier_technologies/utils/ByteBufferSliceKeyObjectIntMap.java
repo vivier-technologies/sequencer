@@ -81,14 +81,20 @@ public class ByteBufferSliceKeyObjectIntMap implements ByteBufferSliceKeyIntMap 
                 return false;
             ByteBufferSliceKey that = (ByteBufferSliceKey)obj;
             // the bytebuffer equals method has some magic for speed of comparison which is nice but hidden in java internals
-            // so to get hold of it need to make sure position and limit are good - bit ugly
+            // so to get hold of it need to make sure position and limit are good - bit ugly to say the least
             boolean equals;
             if(_position != -1) {
                 int currentPos = _buffer.position();
                 int currentLimit = _buffer.limit();
-                _buffer.limit(_position+_length).position(_position);
+                _buffer.limit(_position + _length).position(_position);
                 equals = _buffer.equals(that._buffer);
                 _buffer.limit(currentLimit).position(currentPos);
+            } else if (that._position != -1) {
+                int currentPos = that._buffer.position();
+                int currentLimit = that._buffer.limit();
+                that._buffer.limit(that._position + that._length).position(that._position);
+                equals = _buffer.equals(that._buffer);
+                that._buffer.limit(currentLimit).position(currentPos);
             } else {
                 equals = _buffer.equals(that._buffer);
             }
@@ -103,9 +109,8 @@ public class ByteBufferSliceKeyObjectIntMap implements ByteBufferSliceKeyIntMap 
             int currentPos = buffer.position();
             int currentLimit = buffer.limit();
 
-            // only want hash for part of the buffer we're interested in
+            // only want hash for part of the buffer we're interested in so have to do this horribleness or copy the code
             _hashCode = buffer.limit(position+length).position(position).hashCode();
-
             buffer.limit(currentLimit).position(currentPos);
         }
     }

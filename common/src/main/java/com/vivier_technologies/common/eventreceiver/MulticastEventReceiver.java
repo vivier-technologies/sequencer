@@ -33,7 +33,7 @@ import java.nio.channels.SelectionKey;
 
 public class MulticastEventReceiver implements EventReceiver, MultiplexerHandler {
 
-    private static final byte[] _componentName = Logger.generateLoggingKey("EVTRECEIVER");
+    private static final byte[] _loggingKey = Logger.generateLoggingKey("EVTRECEIVER");
 
     private final String _multicastAddress;
     private final String _ip;
@@ -122,7 +122,7 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerHandler
             // processing path...
             _listener.onEvent(_event);
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to read from channel into buffer");
+            _logger.error(_loggingKey, "Unable to read from channel into buffer");
         }
 
     }
@@ -139,7 +139,7 @@ public class MulticastEventReceiver implements EventReceiver, MultiplexerHandler
                 _channel.close();
             }
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to close socket");
+            _logger.error(_loggingKey, "Unable to close socket");
         }
     }
 }

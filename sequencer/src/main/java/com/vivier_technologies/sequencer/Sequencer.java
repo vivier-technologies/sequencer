@@ -18,6 +18,7 @@
 package com.vivier_technologies.sequencer;
 
 import com.vivier_technologies.commands.Command;
+import com.vivier_technologies.commands.CommandHeader;
 import com.vivier_technologies.common.admin.AdminHandler;
 import com.vivier_technologies.common.admin.AdminReceiver;
 import com.vivier_technologies.common.admin.StatusEmitter;
@@ -31,6 +32,8 @@ import com.vivier_technologies.sequencer.emitter.EventEmitter;
 import com.vivier_technologies.sequencer.eventstore.EventStore;
 import com.vivier_technologies.sequencer.processor.CommandProcessor;
 import com.vivier_technologies.sequencer.replay.EventReplay;
+import com.vivier_technologies.utils.ByteBufferSliceKeyIntMap;
+import com.vivier_technologies.utils.ByteBufferSliceKeyObjectIntMap;
 import com.vivier_technologies.utils.Logger;
 import org.apache.commons.configuration2.Configuration;
 
@@ -39,7 +42,7 @@ import java.io.IOException;
 
 public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
 
-    private static final byte[] _componentName = Logger.generateLoggingKey("SEQUENCER");
+    private static final byte[] _loggingKey = Logger.generateLoggingKey("SEQUENCER");
 
     private final CommandReceiver _commandReceiver;
     private final EventReceiver _eventReceiver;
@@ -54,6 +57,8 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
     private final Logger _logger;
 
     private boolean _active = false;
+
+    private final ByteBufferSliceKeyIntMap _map;
 
     @Inject
     public Sequencer(Logger logger, Configuration configuration, Multiplexer mux, CommandProcessor processor,
@@ -79,6 +84,9 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
         _adminReceiver.setHandler(this);
         _commandReceiver.setHandler(this);
         _eventReceiver.setHandler(this);
+
+        _map = new ByteBufferSliceKeyObjectIntMap(
+                configuration.getInt("sequencer.expectedcommandsenders", 50));
     }
 
     public CommandProcessor getProcessor() {
@@ -99,7 +107,7 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
 
             _mux.run();
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to start as cannot open dependent modules");
+            _logger.error(_loggingKey, "Unable to start as cannot open dependent modules");
         }
     }
 
@@ -126,13 +134,20 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
      */
     @Override
     public void onCommand(Command command) {
-        Event e = _processor.process(command);
-        // TODO consider what to do when can't store and whether we should listen to event on the network - gives more common codepath..
-        _eventStore.store(e);
-        try {
-            _eventEmitter.send(e);
-        } catch (IOException ioException) {
-            _logger.error(_componentName, "Unable to send event for command - clients will request replay from sequencer when they realise");
+        // Validate the command has the right sequence for the src
+        if(_map.compareAndSetIfIncrement(
+                command.getData(), CommandHeader.SRC, CommandHeader.SRC_LEN, command.getHeader().getSequence())) {
+            // its good
+            Event e = _processor.process(command);
+            // TODO consider what to do when can't store and whether we should listen to event on the network - gives more common codepath..
+            _eventStore.store(e);
+            try {
+                _eventEmitter.send(e);
+            } catch (IOException ioException) {
+                _logger.error(_loggingKey, "Unable to send event for command - clients will request replay from sequencer when they realise");
+            }
+        } else {
+            _logger.info(_loggingKey, "Bad command sequence");
         }
     }
 
@@ -162,7 +177,7 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
     @Override
     public void onGoActive() {
         if(!_active) {
-            _logger.info(_componentName, "Going active");
+            _logger.info(_loggingKey, "Going active");
             try {
                 _commandReceiver.open();
                 _eventEmitter.open();
@@ -170,13 +185,13 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
                 if (_eventStore.isEmpty()) {
                     // TODO send out start of stream if its the start of the stream
                 }
-                _logger.info(_componentName, "Gone active");
+                _logger.info(_loggingKey, "Gone active");
                 _statusEmitter.sendStatus(_active);
             } catch (IOException e) {
-                _logger.error(_componentName, "Unable to go active as cannot open command receiver");
+                _logger.error(_loggingKey, "Unable to go active as cannot open command receiver");
             }
         } else {
-            _logger.info(_componentName, "Ignoring go active as not passive");
+            _logger.info(_loggingKey, "Ignoring go active as not passive");
         }
     }
 
@@ -186,7 +201,7 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
     @Override
     public void onGoPassive() {
         if(_active) {
-            _logger.info(_componentName, "Going passive");
+            _logger.info(_loggingKey, "Going passive");
             try {
                 // start listening to events on assumption another sequencer is taking over
                 _eventReceiver.open();
@@ -194,13 +209,13 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
                 _commandReceiver.close();
                 _eventEmitter.close();
                 _active = false;
-                _logger.info(_componentName, "Gone passive");
+                _logger.info(_loggingKey, "Gone passive");
                 _statusEmitter.sendStatus(_active);
             } catch (IOException e) {
-                _logger.error(_componentName, "Unable to go passive as cannot open event receiver");
+                _logger.error(_loggingKey, "Unable to go passive as cannot open event receiver");
             }
         } else {
-            _logger.info(_componentName, "Ignoring go passive as not active");
+            _logger.info(_loggingKey, "Ignoring go passive as not active");
         }
     }
 
@@ -209,12 +224,12 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
      */
     @Override
     public void onShutdown() {
-        _logger.info(_componentName, "Shutting down");
+        _logger.info(_loggingKey, "Shutting down");
         if(_active) {
             // TODO send end of stream out
         }
         stop();
-        _logger.info(_componentName, "Shutdown");
+        _logger.info(_loggingKey, "Shutdown");
     }
 
     /**

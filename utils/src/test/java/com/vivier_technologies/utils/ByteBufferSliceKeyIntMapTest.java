@@ -32,8 +32,12 @@ public class ByteBufferSliceKeyIntMapTest {
         assertFalse(map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTEST".getBytes()), 0, 8, 3));
         assertTrue(
                 map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTEST".getBytes()), 0, 8, 1));
+        assertFalse(
+                map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTEST".getBytes()), 0, 8, 1));
         assertFalse(map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTEST".getBytes()), 0, 8, 3));
         assertTrue(
+                map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTEST".getBytes()), 0, 8, 2));
+        assertFalse(
                 map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTEST".getBytes()), 0, 8, 2));
         assertFalse(map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTES1".getBytes()), 0, 8, 3));
         assertTrue(
@@ -49,8 +53,10 @@ public class ByteBufferSliceKeyIntMapTest {
         assertFalse(map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTEST".getBytes()), 0, 4, 3));
         assertTrue(map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTEST".getBytes()), 0, 4, 1));
         assertTrue(map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTEST".getBytes()), 0, 4, 2));
+        assertFalse(map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTEST".getBytes()), 0, 4, 2));
         assertFalse(map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTES1".getBytes()), 4, 4, 3));
         assertTrue(map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTES1".getBytes()), 4, 4, 1));
         assertTrue(map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTES1".getBytes()), 4, 4, 2));
+        assertFalse(map.compareAndSetIfIncrement(ByteBuffer.wrap("TESTTES1".getBytes()), 4, 4, 2));
     }
 }

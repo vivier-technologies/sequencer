@@ -26,7 +26,7 @@ import org.apache.commons.configuration2.Configuration;
 import javax.inject.Inject;
 
 public class NoOpCommandProcessor implements CommandProcessor {
-    private static final byte[] _componentName = Logger.generateLoggingKey("NOOPCMDPROC");
+    private static final byte[] _loggingKey = Logger.generateLoggingKey("NOOPCMDPROC");
 
     private final Logger _logger;
     private final ByteBufferEvent _event;
@@ -40,12 +40,8 @@ public class NoOpCommandProcessor implements CommandProcessor {
 
     @Override
     public final Event process(Command command) {
-        //TODO Consider factory here
-        //TODO handle command retries or assume client will back off?
-        //TODO handle command sequence gaps
-        //TODO make sure command size won't breach max message size
         _event.setData(command.getData());
-        _logger.info(_componentName, "Received command - processing");
+        _logger.info(_loggingKey, "Received command - processing");
         return _event;
     }
 

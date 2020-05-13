@@ -32,7 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 public class MulticastEventEmitter implements EventEmitter {
-    private static byte[] _componentName = Logger.generateLoggingKey("MCEVTEMITTER");
+    private static byte[] _loggingKey = Logger.generateLoggingKey("MCEVTEMITTER");
 
     private final String _multicastAddress;
     private final String _ip;
@@ -81,11 +81,11 @@ public class MulticastEventEmitter implements EventEmitter {
         // send a single event packet
         ByteBuffer buffer = event.getData();
         if(buffer.limit() > _maxEventSize) {
-            _logger.error(_componentName, "Attempting to send event that is larger than maxmessagesize");
+            _logger.error(_loggingKey, "Attempting to send event that is larger than maxmessagesize");
         }
         // TODO in theory this could block but assuming the os buffer size is large then it shouldn't
         if(_channel.send(buffer, _multicastAddressSocket) == 0) {
-            _logger.error(_componentName, "Event wasn't sent out");
+            _logger.error(_loggingKey, "Event wasn't sent out");
         }
     }
 
@@ -104,7 +104,7 @@ public class MulticastEventEmitter implements EventEmitter {
                 _channel.close();
             }
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to close event emitter");
+            _logger.error(_loggingKey, "Unable to close event emitter");
         }
     }
 }

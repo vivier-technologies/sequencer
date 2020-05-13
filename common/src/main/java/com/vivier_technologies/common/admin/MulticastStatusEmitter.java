@@ -35,7 +35,7 @@ import java.nio.channels.DatagramChannel;
 
 public class MulticastStatusEmitter implements StatusEmitter {
 
-    private static byte[] _componentName = Logger.generateLoggingKey("MCSTATEMITTER");
+    private static byte[] _loggingKey = Logger.generateLoggingKey("MCSTATEMITTER");
 
     private final String _multicastAddress;
     private final String _ip;
@@ -98,7 +98,7 @@ public class MulticastStatusEmitter implements StatusEmitter {
                 _channel.close();
             }
         } catch (IOException e) {
-            _logger.error(_componentName, "Unable to close status emitter");
+            _logger.error(_loggingKey, "Unable to close status emitter");
         }
     }
 
@@ -115,7 +115,7 @@ public class MulticastStatusEmitter implements StatusEmitter {
         try {
             _channel.send(_buffer, _multicastAddressSocket);
         } catch (IOException e) {
-            _logger.info(_componentName, "Unable to send out status");
+            _logger.info(_loggingKey, "Unable to send out status");
         }
     }
 
