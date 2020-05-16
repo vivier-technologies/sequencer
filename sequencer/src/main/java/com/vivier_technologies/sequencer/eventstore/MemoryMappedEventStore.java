@@ -82,7 +82,7 @@ public final class MemoryMappedEventStore implements EventStore {
     }
 
     @Override
-    public final Events retrieve(long start, long end) {
+    public final Event retrieve(long start) {
         return null;
     }
 
