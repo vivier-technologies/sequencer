@@ -21,16 +21,52 @@ import com.vivier_technologies.events.Event;
 
 import java.io.IOException;
 
+/**
+ * Very simple event store for the sequencer - intention is that the sequencer shouldn't be responding to event sequence
+ * replay requests very often at all - instead the repeaters should be used as TCP going to be a better paradigm to transfer
+ * a stream of events back to a client
+ */
 public interface EventStore {
 
+    /**
+     * Open the store - some implementations may retrieve the event information from disk
+     *
+     * @throws IOException if unable to open
+     */
     void open() throws IOException;
 
+    /**
+     * Persist an event into the store
+     *
+     * @param event event to store
+     * @return whether event was stored successfully
+     */
     boolean store(Event event);
 
-    Events retrieve(long start, long end);
+    /**
+     * Retrieve a single event from the store
+     * @param sequence retrieve the event corresponding to this sequence
+     * @return the event in question
+     */
+    Event retrieve(long sequence);
 
+    /**
+     * Is the event store empty or not
+     *
+     * @return state of the store
+     */
     boolean isEmpty();
 
+    /**
+     * Close the store - on some implementations this may store down to disk
+     */
     void close();
+
+    /**
+     * Get the next sequence no to be used for the event
+     *
+     * @return the sequence no
+     */
+    long getNextSequence();
 
 }

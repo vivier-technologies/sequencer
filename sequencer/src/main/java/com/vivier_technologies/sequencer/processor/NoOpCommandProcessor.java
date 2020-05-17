@@ -20,22 +20,28 @@ package com.vivier_technologies.sequencer.processor;
 import com.vivier_technologies.commands.Command;
 import com.vivier_technologies.events.ByteBufferEvent;
 import com.vivier_technologies.events.Event;
+import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
 import org.apache.commons.configuration2.Configuration;
 
 import javax.inject.Inject;
+import java.nio.ByteBuffer;
 
 public class NoOpCommandProcessor implements CommandProcessor {
     private static final byte[] _loggingKey = Logger.generateLoggingKey("NOOPCMDPROC");
 
     private final Logger _logger;
     private final ByteBufferEvent _event;
+    private final ByteBuffer _buffer;
 
     @Inject
     public NoOpCommandProcessor(Logger logger, Configuration configuration) {
         _logger = logger;
 
         _event = new ByteBufferEvent();
+
+        // TODO not going direct here because improves copy semantics into store but should be really to enable faster IO
+        _buffer = ByteBufferFactory.nativeAllocate(configuration.getInt("maxmesssagesize"));
     }
 
     @Override

@@ -34,13 +34,18 @@ public class TestEventStore implements EventStore {
     }
 
     @Override
-    public Events retrieve(long start, long end) {
+    public Event retrieve(long sequence) {
         return null;
     }
 
     @Override
     public void close() {
 
+    }
+
+    @Override
+    public long getNextSequence() {
+        return 0;
     }
 
     @Override
