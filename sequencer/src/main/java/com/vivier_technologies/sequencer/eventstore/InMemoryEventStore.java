@@ -17,7 +17,9 @@
 
 package com.vivier_technologies.sequencer.eventstore;
 
+import com.vivier_technologies.events.ByteBufferEvent;
 import com.vivier_technologies.events.Event;
+import com.vivier_technologies.utils.ByteBufferFactory;
 import com.vivier_technologies.utils.Logger;
 import it.unimi.dsi.fastutil.BigArrays;
 import org.apache.commons.configuration2.Configuration;
@@ -40,17 +42,26 @@ public class InMemoryEventStore implements EventStore {
     private long _nextWriteLocation = 0;
 
     private final byte[] _transferArray;
+    private final ByteBuffer _transferBuffer;
+
+    private final ByteBufferEvent _event = new ByteBufferEvent();
 
     @Inject
     public InMemoryEventStore(Logger logger, Configuration configuration) {
         _logger = logger;
 
-        _transferArray = new byte[configuration.getInt("maxmessagesize")];
+        _transferBuffer = ByteBufferFactory.nativeAllocate(configuration.getInt("maxmessagesize"));
+        _transferArray = _transferBuffer.array();
+        _event.setData(_transferBuffer);
 
         _eventLookup = BigArrays.forceCapacity(_eventLookup,
                 configuration.getLong("sequencer.eventstore.initialsize", 1024), 0L);
+        // initial set just to for clarity - clearly array would be initialised to 0
+        BigArrays.set(_eventLookup, _nextSequence, 0);
+
         _store = BigArrays.forceCapacity(_store,
-                configuration.getLong("sequencer.eventstore.initialsize", 1024) * 1500, 0L);
+                configuration.getLong("sequencer.eventstore.initialsize", 1024) *
+                        configuration.getInt("maxmessagesize"), 0L);
     }
 
     @SuppressWarnings("RedundantThrows")
@@ -74,25 +85,45 @@ public class InMemoryEventStore implements EventStore {
             data = buffer.array();
             BigArrays.copyToBig(data, pos, _store, _nextWriteLocation, remaining);
         } else {
-            // Bit ugly - adding for completeness in case an author of the processor uses a direct buffer..
+            // Bit ugly - adding for completeness in case an author of the processor uses a direct buffer
+            // ideally wouldn't do this copy (and still use direct buffer but that will require some more magic..)
             buffer.get(pos, _transferArray, 0, remaining);
             BigArrays.copyToBig(_transferArray, 0, _store, _nextWriteLocation, remaining);
         }
-        BigArrays.set(_eventLookup, _nextSequence, _nextWriteLocation);
         _nextSequence++;
         _nextWriteLocation += remaining;
-
+        BigArrays.set(_eventLookup, _nextSequence, _nextWriteLocation);
         return true;
     }
 
+    /**
+     * Retrieve the given event data for the sequence
+     *
+     * @param sequence retrieve the event corresponding to this sequence
+     * @return the event or null if an invalid sequence was passed in
+     */
     @Override
     public Event retrieve(long sequence) {
-        return null;
+        if (sequence >= _nextSequence) {
+            return null;
+        } else {
+            long index = BigArrays.get(_eventLookup, sequence);
+            long nextIndex = BigArrays.get(_eventLookup, sequence+1);
+            int length = (int)(nextIndex-index);
+            BigArrays.copyFromBig(_store, index, _transferArray, 0, length);
+            _transferBuffer.position(0).limit(length);
+            return _event;
+        }
     }
 
     @Override
     public void close() {
 
+    }
+
+    @Override
+    public long getNextSequence() {
+        return _nextSequence;
     }
 
     @Override

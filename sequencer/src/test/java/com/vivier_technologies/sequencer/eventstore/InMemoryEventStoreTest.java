@@ -28,8 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,24 +37,25 @@ class InMemoryEventStoreTest {
     @Test
     public void testIsEmpty() throws Exception {
         Configuration config = mock(Configuration.class);
-        when(config.getLong("sequencer.eventstore.initialsize", 1024)).thenReturn(1000L);
+        when(config.getLong("sequencer.eventstore.initialsize", 1024)).thenReturn(10L);
+        when(config.getInt("maxmessagesize")).thenReturn(100);
         EventStore es = new InMemoryEventStore(new ConsoleLogger(), config);
 
         es.open();
         assertTrue(es.isEmpty());
+
         ByteBufferEvent e = new ByteBufferEvent();
         byte[] source = "TESTSRC ".getBytes();
         byte[] eventBody = "MY_TEST_BODY".getBytes();
         ByteBuffer buffer = ByteBufferFactory.nativeAllocate(100);
         buffer.putShort(EventHeader.TYPE, Events.START_OF_STREAM);
         buffer.put(EventHeader.SRC, source, 0, source.length);
-        buffer.putLong(EventHeader.EVENT_SEQ, 1L);
+        buffer.putLong(EventHeader.EVENT_SEQ, es.getNextSequence());
         buffer.position(EventHeader.EVENT_HEADER_LEN);
         buffer.put(eventBody);
         buffer.putInt(EventHeader.EVENT_LEN, buffer.position());
         buffer.flip();
         e.setData(buffer);
-
 
         es.store(e);
         assertFalse(es.isEmpty());
@@ -66,6 +66,7 @@ class InMemoryEventStoreTest {
     public void testGrowth() throws Exception {
         Configuration config = mock(Configuration.class);
         when(config.getLong("sequencer.eventstore.initialsize", 1024)).thenReturn(10L);
+        when(config.getInt("maxmessagesize")).thenReturn(100);
         EventStore es = new InMemoryEventStore(new ConsoleLogger(), config);
         ByteBufferEvent e = new ByteBufferEvent();
         byte[] source = "TESTSRC ".getBytes();
@@ -82,7 +83,7 @@ class InMemoryEventStoreTest {
 
         es.open();
         for(int i=0;i<20;i++) {
-            buffer.putLong(EventHeader.EVENT_SEQ, i+1);
+            buffer.putLong(EventHeader.EVENT_SEQ, es.getNextSequence());
             es.store(e);
         }
         es.close();
@@ -91,11 +92,52 @@ class InMemoryEventStoreTest {
     @Test
     public void testRetrieve() throws Exception {
         Configuration config = mock(Configuration.class);
-        when(config.getLong("sequencer.eventstore.initialsize", 1024)).thenReturn(1000L);
+        when(config.getLong("sequencer.eventstore.initialsize", 1024)).thenReturn(10L);
+        when(config.getInt("maxmessagesize")).thenReturn(100);
+        EventStore es = new InMemoryEventStore(new ConsoleLogger(), config);
+        es.open();
+        assertTrue(es.isEmpty());
+
+        ByteBufferEvent e = new ByteBufferEvent();
+        byte[] source = "TESTSRC ".getBytes();
+        byte[] eventBody = "MY_TEST_BODY".getBytes();
+        ByteBuffer buffer = ByteBufferFactory.nativeAllocate(100);
+        buffer.putShort(EventHeader.TYPE, Events.START_OF_STREAM);
+        buffer.put(EventHeader.SRC, source, 0, source.length);
+        buffer.putLong(EventHeader.EVENT_SEQ, es.getNextSequence());
+        buffer.position(EventHeader.EVENT_HEADER_LEN);
+        buffer.put(eventBody);
+        buffer.putInt(EventHeader.EVENT_LEN, buffer.position());
+        buffer.flip();
+        e.setData(buffer);
+
+        for(int i=0;i<20;i++) {
+            buffer.putLong(EventHeader.EVENT_SEQ, es.getNextSequence());
+            es.store(e);
+        }
+
+        Event retrievedEvent = es.retrieve(0);
+        assertEquals(0, retrievedEvent.getHeader().getSequence());
+        assertEquals(Events.START_OF_STREAM, retrievedEvent.getHeader().getType());
+        assertEquals(new String(source), new String(retrievedEvent.getHeader().getSource()));
+
+        retrievedEvent = es.retrieve(15);
+        assertEquals(15, retrievedEvent.getHeader().getSequence());
+        assertEquals(Events.START_OF_STREAM, retrievedEvent.getHeader().getType());
+        assertEquals(new String(source), new String(retrievedEvent.getHeader().getSource()));
+
+        es.close();
+    }
+
+    @Test
+    public void testInvalidRetrieve() throws Exception {
+        Configuration config = mock(Configuration.class);
+        when(config.getLong("sequencer.eventstore.initialsize", 1024)).thenReturn(10L);
+        when(config.getInt("maxmessagesize")).thenReturn(100);
         EventStore es = new InMemoryEventStore(new ConsoleLogger(), config);
         assertTrue(es.isEmpty());
-        Event e = es.retrieve(1);
-        e.getData();
+        Event e = es.retrieve(5);
+        assertNull(e);
     }
 
 }

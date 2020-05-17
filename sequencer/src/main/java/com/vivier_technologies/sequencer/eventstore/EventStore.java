@@ -62,4 +62,11 @@ public interface EventStore {
      */
     void close();
 
+    /**
+     * Get the next sequence no to be used for the event
+     *
+     * @return the sequence no
+     */
+    long getNextSequence();
+
 }

@@ -77,6 +77,11 @@ public final class MemoryMappedEventStore implements EventStore {
     }
 
     @Override
+    public long getNextSequence() {
+        return 0;
+    }
+
+    @Override
     public final boolean store(Event event) {
         return false;
     }

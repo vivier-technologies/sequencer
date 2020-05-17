@@ -44,6 +44,11 @@ public class TestEventStore implements EventStore {
     }
 
     @Override
+    public long getNextSequence() {
+        return 0;
+    }
+
+    @Override
     public boolean isEmpty() {
         return true;
     }
