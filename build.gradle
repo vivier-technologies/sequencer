@@ -18,6 +18,9 @@ subprojects {
     group = 'com.vivier_technologies'
     version = '0.1.0'
 
+    task stage(dependsOn: ['build', 'clean'])
+    build.mustRunAfter clean
+
     test {
         useJUnitPlatform()
     }

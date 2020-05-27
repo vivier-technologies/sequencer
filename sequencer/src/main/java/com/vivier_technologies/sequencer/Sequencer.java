@@ -93,11 +93,6 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
         return _processor;
     }
 
-    //TODO implement scheduler on top of mux
-    //TODO event storage and structures
-    //TODO heartbeating
-    //TODO event replay!!
-
     public void start() {
         try {
             _mux.open();
@@ -137,12 +132,11 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
         // Validate the command has the right sequence for the src
         if(_map.compareAndSetIfIncrement(
                 command.getData(), CommandHeader.SRC, CommandHeader.SRC_LEN, command.getHeader().getSequence())) {
-            // its good
-            Event e = _processor.process(command);
-            // TODO consider what to do when can't store and whether we should listen to event on the network - gives more common codepath..
-            _eventStore.store(e);
+            Event event = _processor.process(command);
+            // TODO consider what to do when can't store
+            _eventStore.store(event);
             try {
-                _eventEmitter.send(e);
+                _eventEmitter.send(event);
             } catch (IOException ioException) {
                 _logger.error(_loggingKey, "Unable to send event for command - clients will request replay from sequencer when they realise");
             }
@@ -162,11 +156,11 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
      */
     @Override
     public void onEvent(Event event) {
-        Event e = _processor.process(event);
+        Event processedEvent = _processor.process(event);
         // store here so backup sequencers can be a source of replay and limit impact to primary though repeater
         // will still be preferred source
         // TODO consider what to do when can't store...
-        _eventStore.store(e);
+        _eventStore.store(processedEvent);
     }
 
     // Very simple state active/passive so no need for state machine here thus far
@@ -184,6 +178,8 @@ public class Sequencer implements CommandHandler, EventHandler, AdminHandler {
                 _active = true;
                 if (_eventStore.isEmpty()) {
                     // TODO send out start of stream if its the start of the stream
+                    //_eventStore.store();
+                    //_eventEmitter.send();
                 }
                 _logger.info(_loggingKey, "Gone active");
                 _statusEmitter.sendStatus(_active);
