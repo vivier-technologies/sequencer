@@ -60,7 +60,7 @@ public class StandardJVMMultiplexer implements Multiplexer, Scheduler {
     public void run() throws IOException {
 
         while(_run) {
-            // TODO work out the timeout logic here
+            // TODO work out the timeout logic here and create scheduler
             long now = System.currentTimeMillis();
             if(_selector.selectNow() > 0) {
                 Iterator<SelectionKey> iterator = _selector.selectedKeys().iterator();

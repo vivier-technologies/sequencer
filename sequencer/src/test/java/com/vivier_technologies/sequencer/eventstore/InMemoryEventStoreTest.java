@@ -34,13 +34,16 @@ import static org.mockito.Mockito.when;
 
 class InMemoryEventStoreTest {
 
-    @Test
-    public void testIsEmpty() throws Exception {
+    private Configuration getConfig() {
         Configuration config = mock(Configuration.class);
         when(config.getLong("sequencer.eventstore.initialsize", 1024)).thenReturn(10L);
         when(config.getInt("maxmessagesize")).thenReturn(100);
-        EventStore es = new InMemoryEventStore(new ConsoleLogger(), config);
+        return config;
+    }
 
+    @Test
+    public void testIsEmpty() throws Exception {
+        EventStore es = new InMemoryEventStore(new ConsoleLogger(), getConfig());
         es.open();
         assertTrue(es.isEmpty());
 
@@ -64,10 +67,7 @@ class InMemoryEventStoreTest {
 
     @Test
     public void testGrowth() throws Exception {
-        Configuration config = mock(Configuration.class);
-        when(config.getLong("sequencer.eventstore.initialsize", 1024)).thenReturn(10L);
-        when(config.getInt("maxmessagesize")).thenReturn(100);
-        EventStore es = new InMemoryEventStore(new ConsoleLogger(), config);
+        EventStore es = new InMemoryEventStore(new ConsoleLogger(), getConfig());
         ByteBufferEvent e = new ByteBufferEvent();
         byte[] source = "TESTSRC ".getBytes();
         byte[] eventBody = "MY_TEST_BODY".getBytes();
@@ -91,10 +91,7 @@ class InMemoryEventStoreTest {
 
     @Test
     public void testRetrieve() throws Exception {
-        Configuration config = mock(Configuration.class);
-        when(config.getLong("sequencer.eventstore.initialsize", 1024)).thenReturn(10L);
-        when(config.getInt("maxmessagesize")).thenReturn(100);
-        EventStore es = new InMemoryEventStore(new ConsoleLogger(), config);
+        EventStore es = new InMemoryEventStore(new ConsoleLogger(), getConfig());
         es.open();
         assertTrue(es.isEmpty());
 
@@ -131,10 +128,7 @@ class InMemoryEventStoreTest {
 
     @Test
     public void testInvalidRetrieve() throws Exception {
-        Configuration config = mock(Configuration.class);
-        when(config.getLong("sequencer.eventstore.initialsize", 1024)).thenReturn(10L);
-        when(config.getInt("maxmessagesize")).thenReturn(100);
-        EventStore es = new InMemoryEventStore(new ConsoleLogger(), config);
+        EventStore es = new InMemoryEventStore(new ConsoleLogger(), getConfig());
         assertTrue(es.isEmpty());
         Event e = es.retrieve(5);
         assertNull(e);
